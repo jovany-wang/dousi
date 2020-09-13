@@ -1,0 +1,4 @@
+#ifndef _DOUSI_RUNTIME_CONTEXT_H_
+#define _DOUSI_RUNTIME_CONTEXT_H_
+
+#endif
