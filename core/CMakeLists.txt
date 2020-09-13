@@ -65,7 +65,7 @@ ADD_DEPENDENCIES(basic_server_for_test googletest_ep boost_ep dousi_common_lib)
 TARGET_LINK_LIBRARIES(basic_server_for_test dousi_common_lib pthread)
 
 DEFINE_DOUSI_TEST(test_basic_call
-        SRC_FILES tests/basic_call_test.cc src/core/submitter/submitter_runtime.cc
+        SRC_FILES tests/basic_call_test.cc src/core/submitter/submitter_runtime.cc src/core/executor/executor_runtime.cc src/core/executor/connection_session.cc
         LINKS dousi_common_lib)
 
 DEFINE_DOUSI_TEST(test_master
