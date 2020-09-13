@@ -16,14 +16,14 @@ public:
 TEST(Nameof, TestClassName) {
     auto remote_method = dousi::Remote(&TestAdder::add);
 
+    ASSERT_TRUE("add" == remote_method.GetName());
     std::cout << remote_method.GetName() << std::endl;
     auto method = remote_method.GetMethod();
 
     TestAdder adder;
 
     auto s = std::invoke(method, &adder, 100 ,3000);
-    std::cout << "s = " << s << std::endl;
-
+    ASSERT_EQ(3100, s);
 }
 
 
