@@ -77,5 +77,5 @@ DEFINE_DOUSI_TEST(test_nameof
         LINKS dousi_common_lib)
 
 DEFINE_DOUSI_TEST(test_dousi_method_macro
-        SRC_FILES tests/method_macro_test.cc
+        SRC_FILES tests/method_macro_test.cc src/core/executor/executor_runtime.cc
         LINKS dousi_common_lib)
