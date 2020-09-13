@@ -5,7 +5,7 @@
 
 namespace dousi {
 
-inline static void Init2(const std::string &server_address) {
+inline static void Init(const std::string &server_address) {
     SubmitterRuntime::GetInstance().Init(server_address);
 }
 

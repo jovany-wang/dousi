@@ -10,7 +10,7 @@
 TEST(BasicCallTest, TestEchoer) {
     {
         // Test echo
-        dousi::Init2("127.0.0.1:10001");
+        dousi::Init("127.0.0.1:10001");
         auto echoer = dousi::GetService("Echoer");
         auto echoed_str = echoer.Call(dousi::Remote(&Echoer::echo), "hello world").Get();
         ASSERT_TRUE("hello world" == *echoed_str);
