@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "../src/core/dousi.h"
+#include "core/dousi.h"
 
 #include <iostream>
 

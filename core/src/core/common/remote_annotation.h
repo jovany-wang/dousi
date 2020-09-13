@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 
+#include <nameof/nameof.hpp>
+
 namespace dousi {
 
 
