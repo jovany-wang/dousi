@@ -111,7 +111,6 @@ private:
     void DoAsyncReadBody(uint32_t object_id, uint32_t body_size);
 
 private:
-    std::unordered_map<std::string, ServiceHandle> service_handles_;
 
     std::atomic<uint64_t> curr_object_id_ = 0;
 
