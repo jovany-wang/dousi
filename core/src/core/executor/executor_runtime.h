@@ -128,7 +128,6 @@ private:
 
 private:
     ExecutorRuntime() :io_service_(), work_(io_service_) {
-//        DoAccept();
     };
 
 private:

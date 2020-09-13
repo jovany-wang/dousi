@@ -52,7 +52,7 @@ TARGET_LINK_LIBRARIES(example_server dousi_common_lib pthread)
 
 # examples client
 ADD_EXECUTABLE(example_client
-        examples/client.cc src/core/submitter/submitter_runtime.cc)
+        examples/client.cc src/core/submitter/submitter_runtime.cc src/core/executor/executor_runtime.cc src/core/executor/connection_session.cc)
 ADD_DEPENDENCIES(example_client googletest_ep boost_ep dousi_common_lib)
 TARGET_LINK_LIBRARIES(example_client dousi_common_lib pthread)
 
@@ -65,7 +65,7 @@ ADD_DEPENDENCIES(basic_server_for_test googletest_ep boost_ep dousi_common_lib)
 TARGET_LINK_LIBRARIES(basic_server_for_test dousi_common_lib pthread)
 
 DEFINE_DOUSI_TEST(test_basic_call
-        SRC_FILES tests/basic_call_test.cc src/core/submitter/submitter_runtime.cc
+        SRC_FILES tests/basic_call_test.cc src/core/submitter/submitter_runtime.cc src/core/executor/executor_runtime.cc src/core/executor/connection_session.cc
         LINKS dousi_common_lib)
 
 DEFINE_DOUSI_TEST(test_master
@@ -77,5 +77,5 @@ DEFINE_DOUSI_TEST(test_nameof
         LINKS dousi_common_lib)
 
 DEFINE_DOUSI_TEST(test_dousi_method_macro
-        SRC_FILES tests/method_macro_test.cc
+        SRC_FILES tests/method_macro_test.cc src/core/executor/executor_runtime.cc src/core/executor/connection_session.cc
         LINKS dousi_common_lib)
