@@ -2,7 +2,6 @@
 #include <iostream>
 
 #include "core/submitter/api.h"
-#include "core/common/remote_annotation.h"
 
 #include "services.h"
 #include "core/dousi.h"
