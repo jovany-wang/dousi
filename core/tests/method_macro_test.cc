@@ -2,6 +2,7 @@
 
 #include "core/dousi.h"
 
+#include <functional>
 #include <iostream>
 
 class TestAdder {
@@ -25,11 +26,6 @@ TEST(Nameof, TestClassName) {
     auto s = std::invoke(method, &adder, 100 ,3000);
     ASSERT_EQ(3100, s);
 }
-
-
-
-
-
 
 
 int main(int argc, char **argv) {
