@@ -8,14 +8,28 @@
 namespace dousi {
 namespace executor {
 
-inline static void Init(std::string master_address) {
-    ExecutorRuntime::GetInstance().Init(master_address);
+//template <typename ServiceType>
+//class DousiService;
 
+/// Service related.
+template<typename ServiceType>
+inline DousiService<ServiceType> CreateService() {
+    const auto service_name = std::string(NAMEOF_TYPE(ServiceType));
+    return ExecutorRuntime::GetInstance().CreateService<ServiceType>(service_name);
 }
 
-inline static void Loop() {
+static void Init(const std::string &master_address) {
+    ExecutorRuntime::GetInstance().Init(master_address);
+}
+
+static void Shutdown() {
+    ExecutorRuntime::GetInstance().Shutdown();
+}
+
+static void Loop() {
     ExecutorRuntime::GetInstance().Loop();
 }
+
 
 }
 }

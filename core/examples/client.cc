@@ -2,7 +2,6 @@
 #include <iostream>
 
 #include "core/submitter/api.h"
-#include "core/common/remote_annotation.h"
 
 #include "services.h"
 #include "core/dousi.h"
@@ -10,7 +9,7 @@
 int main() {
     using namespace dousi;
 
-    Init2(/*server_address=*/"127.0.0.1:10001");
+    Init(/*server_address=*/"127.0.0.1:10001");
 
     {
         // TODO(qwang): This should refined as a general type call.
