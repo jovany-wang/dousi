@@ -30,7 +30,7 @@ TEST(MasterTest, BasicTest) {
 
   // Run io_context in a separated thread to make sure we can do other assertions later.
   std::thread t([&io_context]() { io_context.run(); });
-  std::this_thread::sleep_for(std::chrono::seconds(5));
+  std::this_thread::sleep_for(std::chrono::seconds(2));
   master_client1.RegisterService("adder1", "127.0.0.1:10001");
   master_client2.RegisterService("adder2", "127.0.0.1:10002");
   master_client3.RegisterService("adder3", "127.0.0.1:10003");
@@ -39,7 +39,7 @@ TEST(MasterTest, BasicTest) {
   master_client2.RegisterService("adder3", "0.0.0.0:0000");
 
   // TODO(qwang): This should be a `Waitutil()`.
-  std::this_thread::sleep_for(std::chrono::seconds(5));
+  std::this_thread::sleep_for(std::chrono::seconds(2));
   auto endpoints = master_server.GetAllEndpoints();
 
   ASSERT_EQ(5, endpoints.size());
