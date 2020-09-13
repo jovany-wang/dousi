@@ -1,7 +1,10 @@
 #ifndef _DOUSI_TEST_UTILS_BASIC_SERVICES_H_
 #define _DOUSI_TEST_UTILS_BASIC_SERVICES_H_
 
+#include <string>
+
 #include "../src/core/dousi.h"
+#include "core/executor/abstract_service.h"
 
 class Echoer : public dousi::AbstractService {
 public:

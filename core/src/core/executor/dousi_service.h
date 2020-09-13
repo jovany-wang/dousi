@@ -2,6 +2,8 @@
 #define _DOUSI_SERVICE_H_
 
 #include "core/executor/executor_runtime.h"
+#include "common/logging.h"
+
 #include <string>
 
 
@@ -13,7 +15,7 @@ public:
 
     explicit DousiService(std::shared_ptr<ServiceType> service_object) : service_object_(service_object) {}
 
-    std::string GetName() const { return service_name_; }
+    [[nodiscard]] std::string GetName() const { return service_name_; }
 
     ServiceType &GetServiceObjectRef() {
         return *service_object_;
