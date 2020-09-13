@@ -52,7 +52,7 @@ TARGET_LINK_LIBRARIES(example_server dousi_common_lib pthread)
 
 # examples client
 ADD_EXECUTABLE(example_client
-        examples/client.cc src/core/submitter/submitter_runtime.cc)
+        examples/client.cc src/core/submitter/submitter_runtime.cc src/core/executor/executor_runtime.cc src/core/executor/connection_session.cc)
 ADD_DEPENDENCIES(example_client googletest_ep boost_ep dousi_common_lib)
 TARGET_LINK_LIBRARIES(example_client dousi_common_lib pthread)
 
