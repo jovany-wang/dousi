@@ -24,7 +24,7 @@ public:
         boost::asio::post([this]() {this->DoReadObjectID(); });
     }
 
-    void Write(const std::string &data);
+    void Write(const uint32_t object_id, const std::string &data);
 
 private:
     void DoReadObjectID();
@@ -32,6 +32,12 @@ private:
     void DoReadHeader(uint32_t object_id);
 
     void DoReadBody(uint32_t object_id, uint32_t body_size);
+
+    void DoWriteObjectID(uint32_t object_id, const std::function<void()> &done_callback);
+
+    void DoWriteHeader(uint32_t data_size, const std::function<void()> &done_callback);
+
+    void DoWriteBody(const std::string &data, const std::function<void()> &done_callback);
 
 private:
     uint64_t stream_id_;

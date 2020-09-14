@@ -64,67 +64,73 @@ void AsioStream::DoReadBody(uint32_t object_id, uint32_t body_size) {
                 DOUSI_LOG(INFO) << "Succeeded to receive the body: " << data;
                 std::string result;
                 invocation_callback_(stream_id_, data, result);
-
-                {
-                    // Write object id first.
-                    char header[sizeof(object_id)];
-                    memcpy(header, &object_id, sizeof(object_id));
-                    boost::asio::async_write(
-                            socket_,
-                            boost::asio::buffer(header, sizeof(object_id)),
-                            [this, object_id](boost::system::error_code error_code, size_t) {
-                                if (error_code) {
-                                    socket_.close();
-                                    DOUSI_LOG(INFO) << "Failed to write object_id to server with error code:" << error_code.message();
-                                } else {
-                                    DOUSI_LOG(DEBUG) << "Succeeded to write object_id to server, object_id=" << object_id;
-                                }
-                            });
-                }
-
-                uint32_t result_size = result.size();
-                {
-                    // Then write header.
-                    char header[sizeof(result_size)];
-                    memcpy(header, &result_size, sizeof(result_size));
-                    boost::asio::async_write(
-                            socket_,
-                            boost::asio::buffer(header, sizeof(result_size)),
-                            [this, result_size](boost::system::error_code error_code, size_t) {
-                                if (error_code) {
-                                    socket_.close();
-                                    DOUSI_LOG(INFO) << "Failed to write header to server with error code:" << error_code;
-                                } else {
-                                    DOUSI_LOG(DEBUG) << "Succeeded to write header to server, header=" << result_size;
-                                }
-                            });
-                }
-                {
-                    // Write body.
-                    socket_.async_send(
-                            boost::asio::buffer(result.data(), result.size()),
-                            [result_size](const boost::system::error_code &error, std::size_t bytes_transferred) {
-                                if (result_size != bytes_transferred) {
-                                    DOUSI_LOG(INFO) << "erroring, bytes_transferred=" << bytes_transferred
-                                                    << ", but result_size=" << result_size;
-                                    return;
-                                }
-                                DOUSI_LOG(INFO) << "Succeeded to send response to client.";
-                            });
-                }
+                Write(object_id, result);
                 DoReadObjectID();
             });
 }
 
-void AsioStream::Write(const std::string &data) {
-    // TODO(qwang): We should write the size of the data first.
+void AsioStream::Write(uint32_t object_id, const std::string &data) {
+    const auto data_size = data.size();
+    // TODO(qwang): Use buffer to avoid this copy.
+    DoWriteObjectID(object_id, /*done_callback=*/[data, data_size, this]() {
+        DoWriteHeader(data_size, /*done_callback=*/[data, this]() {
+            this->DoWriteBody(data, nullptr);
+        });
+    });
+
+}
+
+void AsioStream::DoWriteObjectID(uint32_t object_id, const std::function<void()> &done_callback) {
+    char header[sizeof(object_id)];
+    memcpy(header, &object_id, sizeof(object_id));
+    boost::asio::async_write(
+            socket_,
+            boost::asio::buffer(header, sizeof(object_id)),
+            [this, done_callback, object_id](boost::system::error_code error_code, size_t) {
+                if (error_code) {
+                    socket_.close();
+                    DOUSI_LOG(INFO) << "Failed to write object_id to server with error code:" << error_code.message();
+                } else {
+                    DOUSI_LOG(DEBUG) << "Succeeded to write object_id to server, object_id=" << object_id;
+                    if (done_callback) {
+                        done_callback();
+                    }
+                }
+            });
+}
+
+void AsioStream::DoWriteHeader(uint32_t data_size, const std::function<void()> &done_callback) {
+    char header[sizeof(data_size)];
+    memcpy(header, &data_size, sizeof(data_size));
+    boost::asio::async_write(
+            socket_,
+            boost::asio::buffer(header, sizeof(data_size)),
+            [this, done_callback, data_size](boost::system::error_code error_code, size_t) {
+                if (error_code) {
+                    socket_.close();
+                    DOUSI_LOG(INFO) << "Failed to write header to server with error code:" << error_code;
+                } else {
+                    DOUSI_LOG(DEBUG) << "Succeeded to write header to server, header=" << data_size;
+                    if (done_callback) {
+                        done_callback();
+                    }
+                }
+            });
+}
+
+void AsioStream::DoWriteBody(const std::string &data, const std::function<void()> &done_callback) {
+    const auto data_size = data.size();
     socket_.async_send(
             boost::asio::buffer(data.data(), data.size()),
-            [size = data.size()](const boost::system::error_code &error, size_t sent_bytes) {
-                assert(size == sent_bytes);
-                if (error) {
-                    DOUSI_LOG(INFO) << "Failed to write message to the connection with error " << error.message();
+            [data_size, done_callback](const boost::system::error_code &error, std::size_t bytes_transferred) {
+                if (data_size != bytes_transferred) {
+                    DOUSI_LOG(INFO) << "erroring, bytes_transferred=" << bytes_transferred
+                                    << ", but result_size=" << data_size;
                     return;
+                }
+                DOUSI_LOG(INFO) << "Succeeded to send response to client.";
+                if (done_callback) {
+                    done_callback();
                 }
             });
 }

@@ -130,6 +130,7 @@ private:
     // The mutex that protects socket_.
     std::mutex socket_mutex_;
 
+
     asio_tcp::socket socket_;
 
 };
