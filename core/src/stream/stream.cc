@@ -1,13 +1,11 @@
 
-#include "core/executor/connection_session.h"
+#include "stream/stream.h"
 #include "common/logging.h"
 
-#include <msgpack.hpp>
-
 namespace dousi {
-namespace executor {
 
-void ConnectionSession::DoReadObjectID() {
+
+void AsioStream::DoReadObjectID() {
     // This self is used for the case that this self could be destroyed before the lambda performed.
     auto self(shared_from_this());
     std::shared_ptr<uint32_t> object_id_ptr = std::make_shared<uint32_t>();
@@ -28,7 +26,7 @@ void ConnectionSession::DoReadObjectID() {
             });
 }
 
-void ConnectionSession::DoReadHeader(uint32_t object_id) {
+void AsioStream::DoReadHeader(uint32_t object_id) {
     // This self is used for the case that this self could be destroyed before the lambda performed.
     auto self(shared_from_this());
     std::shared_ptr<uint32_t> body_size_ptr = std::make_shared<uint32_t>();
@@ -49,7 +47,7 @@ void ConnectionSession::DoReadHeader(uint32_t object_id) {
             });
 }
 
-void ConnectionSession::DoReadBody(uint32_t object_id, uint32_t body_size) {
+void AsioStream::DoReadBody(uint32_t object_id, uint32_t body_size) {
     auto self {shared_from_this()};
     std::shared_ptr<char> buffer_ptr(new char[body_size], std::default_delete<char[]>());
 
@@ -65,7 +63,7 @@ void ConnectionSession::DoReadBody(uint32_t object_id, uint32_t body_size) {
                 std::string data(buffer_ptr.get(), length);
                 DOUSI_LOG(INFO) << "Succeeded to receive the body: " << data;
                 std::string result;
-                invocation_callback_(conn_id_, data, result);
+                invocation_callback_(stream_id_, data, result);
 
                 {
                     // Write object id first.
@@ -118,7 +116,7 @@ void ConnectionSession::DoReadBody(uint32_t object_id, uint32_t body_size) {
             });
 }
 
-void ConnectionSession::Write(const std::string &data) {
+void AsioStream::Write(const std::string &data) {
     // TODO(qwang): We should write the size of the data first.
     socket_.async_send(
             boost::asio::buffer(data.data(), data.size()),
@@ -129,8 +127,6 @@ void ConnectionSession::Write(const std::string &data) {
                     return;
                 }
             });
-}
-
 }
 
 }
