@@ -79,6 +79,7 @@ public:
         using ReturnType = typename FunctionTraits<MethodType>::ReturnType;
         DOUSI_LOG(INFO) << "The type of the result is " << NAMEOF_TYPE(ReturnType) << ", and the result = " << ret;
 
+        // Serialize result.
         msgpack::sbuffer buffer(1024);
         msgpack::pack(buffer, ret);
         result = {buffer.data(), buffer.size()};
@@ -98,7 +99,7 @@ public:
                 );
     }
 
-    void InvokeMethod(uint64_t stream_id, const std::string &data, std::string &result) {
+    void InvokeMethod(uint64_t stream_id, uint32_t object_id, const std::string &data, std::string &result) {
         msgpack::unpacked unpacked;
         msgpack::unpack(unpacked, data.data(), data.size());
         auto tuple = unpacked.get().as<std::tuple<std::string>>();
@@ -109,10 +110,8 @@ public:
         assert(it != streams_.end());
         std::shared_ptr<AsioStream> stream = it->second;
 
-        // serialize.
-        msgpack::sbuffer buffer(1024);
-        msgpack::pack(buffer, result);
-        std::string result_str {buffer.data(), buffer.size()};
+        // Note that this result is already serialized since we should know the ReturnType of it.
+        stream->Write(object_id, result);
         DOUSI_LOG(INFO) << "Method invoked, method name is " << method_name << ", result is \"" << result << "\".";
     }
 

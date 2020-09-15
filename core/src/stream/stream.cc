@@ -63,8 +63,8 @@ void AsioStream::DoReadBody(uint32_t object_id, uint32_t body_size) {
                 std::string data(buffer_ptr.get(), length);
                 DOUSI_LOG(INFO) << "Succeeded to receive the body: " << data;
                 std::string result;
-                invocation_callback_(stream_id_, data, result);
-                Write(object_id, result);
+                invocation_callback_(stream_id_, object_id, data, result);
+//                Write(object_id, result);
                 DoReadObjectID();
             });
 }

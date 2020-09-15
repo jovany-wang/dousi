@@ -11,8 +11,15 @@ namespace dousi {
 class AsioStream : public std::enable_shared_from_this<AsioStream> {
 public:
     using InvocationCallbackType = std::function<
-            void (uint64_t conn_id, const std::string &data, std::string &result)>;
+            void (uint64_t stream_id, uint32_t object_id, const std::string &data, std::string &result)>;
 
+    /**
+     * The constructor of AsioStream.
+     *
+     * @param stream_id The id of this stream. This filed should be removed.
+     * @param socket The actual socket to transfer data.
+     * @param invocation_callback The callback to be invoked once we received a complete message.
+     */
     AsioStream(uint64_t stream_id, asio_tcp::socket socket, InvocationCallbackType invocation_callback)
         : stream_id_(stream_id),socket_(std::move(socket)), invocation_callback_(std::move(invocation_callback)) {}
 
@@ -24,7 +31,7 @@ public:
         boost::asio::post([this]() {this->DoReadObjectID(); });
     }
 
-    void Write(const uint32_t object_id, const std::string &data);
+    void Write(uint32_t object_id, const std::string &data);
 
 private:
     void DoReadObjectID();

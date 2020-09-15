@@ -15,8 +15,9 @@ void ExecutorRuntime::DoAccept() {
                     stream_id,
                     std::move(socket),
                     // This result could be removed.
-                    /*callback=*/[this](uint64_t stream_id, const std::string &data, std::string &result) {
-                        InvokeMethod(stream_id, data, result);
+                    /*callback=*/[this](uint64_t stream_id, uint32_t object_id, const std::string &data, std::string &result) {
+                        InvokeMethod(stream_id, object_id, data, result);
+
                     });
             streams_[stream_id] = asio_stream;
             asio_stream->Start();
