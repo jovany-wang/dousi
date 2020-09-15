@@ -12,6 +12,8 @@
 #include "common/logging.h"
 #include "common/endpoint.h"
 
+#include "stream/stream.h"
+
 #include <nameof/nameof.hpp>
 
 
@@ -27,29 +29,23 @@ public:
     }
 
     ~SubmitterRuntime() {
-        socket_.close();
+//        stream_.Close();
         io_service_.stop();
         io_service_thread_->join();
     }
 
     SubmitterRuntime()
-        : work_(io_service_), socket_(io_service_) {
+        : work_(io_service_) {
     }
 
     void Submit(uint64_t object_id, const std::string &method_name, const std::string &buffer) {
-        {
-            // This is not a really header, it's object id of this request.
-            DoWriteHeader(static_cast<uint32_t>(object_id), nullptr);
-        }
-        DoWriteHeader(buffer.size(), nullptr);
-        // TODO(qwang): Confirm that the buffer is small that we call copy it.
-        DoWriteBody(buffer);
+        stream_->Write(object_id, buffer);
     }
 
     void Init(const std::string &server_address) {
         DoConnect(Endpoint("127.0.0.1", 10001).Resolve(io_service_));
-        // Async read from socket.
-        DoAsyncRead();
+        // Async read from stream.
+        stream_->Start();
         io_service_thread_ = std::make_unique<std::thread>([this]() {
             io_service_.run();
         });
@@ -91,24 +87,18 @@ public:
 
 private:
     void DoConnect(const asio_tcp::resolver::results_type &endpoints) {
-        boost::asio::connect(socket_, endpoints);
+        asio_tcp::socket socket(io_service_);
+        boost::asio::connect(socket, endpoints);
+        stream_ = std::make_shared<AsioStream>(
+                /*unused*/0,
+                std::move(socket),
+                /*invocation_callback=*/[this](uint64_t stream_id, uint32_t object_id, const std::string &data, std::string &result) {
+                    // TODO(qwang): This deserialized should be refined as a separated io thread.
+                    cached_objects_[object_id] = data;
+                });
         DOUSI_LOG(DEBUG) << "Succeeded to connect message to server.";
     }
 
-
-    void DoWriteHeader(uint32_t body_size, const std::function<void()> &done_callback);
-
-    void DoWriteBody(const std::string &buffer);
-
-    void DoAsyncRead() {
-        DoAsyncReadObjectID();
-    }
-
-    void DoAsyncReadObjectID();
-
-    void DoAsyncReadHeader(uint32_t object_id);
-
-    void DoAsyncReadBody(uint32_t object_id, uint32_t body_size);
 
 private:
 
@@ -130,7 +120,7 @@ private:
     // The mutex that protects socket_.
     std::mutex socket_mutex_;
 
-    asio_tcp::socket socket_;
+    std::shared_ptr<AsioStream> stream_ = nullptr;
 
 };
 

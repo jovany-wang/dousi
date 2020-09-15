@@ -10,10 +10,9 @@
 #include <nameof/nameof.hpp>
 
 #include "common/noncopyable.h"
-//#include "dousi_service.h"
 
 #include "core/common/tuple_traits.h"
-#include "core/executor/connection_session.h"
+#include "stream/stream.h"
 
 #include <unordered_map>
 #include <string>
@@ -80,6 +79,7 @@ public:
         using ReturnType = typename FunctionTraits<MethodType>::ReturnType;
         DOUSI_LOG(INFO) << "The type of the result is " << NAMEOF_TYPE(ReturnType) << ", and the result = " << ret;
 
+        // Serialize result.
         msgpack::sbuffer buffer(1024);
         msgpack::pack(buffer, ret);
         result = {buffer.data(), buffer.size()};
@@ -99,28 +99,24 @@ public:
                 );
     }
 
-    void InvokeMethod(uint64_t conn_id, const std::string &data, std::string &result) {
+    void InvokeMethod(uint64_t stream_id, uint32_t object_id, const std::string &data, std::string &result) {
         msgpack::unpacked unpacked;
         msgpack::unpack(unpacked, data.data(), data.size());
         auto tuple = unpacked.get().as<std::tuple<std::string>>();
         const auto method_name = std::get<0>(tuple);
         registered_methods_[method_name](data.data(), data.size(), result);
 
-        auto it = conn_sessions_.find(conn_id);
-        assert(it != conn_sessions_.end());
-        std::shared_ptr<executor::ConnectionSession> conn = it->second;
+        auto it = streams_.find(stream_id);
+        assert(it != streams_.end());
+        std::shared_ptr<AsioStream> stream = it->second;
 
-        // serialize.
-        msgpack::sbuffer buffer(1024);
-        msgpack::pack(buffer, result);
-        std::string result_str {buffer.data(), buffer.size()};
-        // Since we send the result in connection_session when after invoking the callback, there is no need to use this Write().
-//        conn->Write(result_str);
+        // Note that this result is already serialized since we should know the ReturnType of it.
+        stream->Write(object_id, result);
         DOUSI_LOG(INFO) << "Method invoked, method name is " << method_name << ", result is \"" << result << "\".";
     }
 
-    uint64_t RequestConnectionSessionID() {
-        return curr_conn_id_.fetch_add(1, std::memory_order_relaxed);
+    uint64_t RequestStreamID() {
+        return curr_stream_id_.fetch_add(1, std::memory_order_relaxed);
     }
 
 private:
@@ -131,7 +127,7 @@ private:
     };
 
 private:
-    std::atomic<uint64_t> curr_conn_id_ =  0;
+    std::atomic<uint64_t> curr_stream_id_ =  0;
 
     std::unordered_map<std::string, std::shared_ptr<AbstractService>> created_services_;
 
@@ -147,8 +143,8 @@ private:
     // acceptor
     std::unique_ptr<boost::asio::ip::tcp::acceptor> acceptor_ = nullptr;
 
-    // The connection session id to the session.
-    std::unordered_map<uint64_t , std::shared_ptr<executor::ConnectionSession>> conn_sessions_;
+    // The stream id to the stream pointer.
+    std::unordered_map<uint64_t , std::shared_ptr<AsioStream>> streams_;
 };
 
 }

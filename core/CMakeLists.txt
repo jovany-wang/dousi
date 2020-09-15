@@ -45,27 +45,27 @@ TARGET_LINK_LIBRARIES(master_client_main dousi_common_lib master_client ${GFLAGS
 # examples server
 ADD_EXECUTABLE(example_server
         examples/server.cc src/core/submitter/submitter_runtime.cc
-        src/core/executor/connection_session.cc
+        src/stream/stream.cc
         src/core/executor/executor_runtime.cc )
 ADD_DEPENDENCIES(example_server googletest_ep boost_ep dousi_common_lib)
 TARGET_LINK_LIBRARIES(example_server dousi_common_lib pthread)
 
 # examples client
 ADD_EXECUTABLE(example_client
-        examples/client.cc src/core/submitter/submitter_runtime.cc src/core/executor/executor_runtime.cc src/core/executor/connection_session.cc)
+        examples/client.cc src/core/submitter/submitter_runtime.cc src/core/executor/executor_runtime.cc src/stream/stream.cc)
 ADD_DEPENDENCIES(example_client googletest_ep boost_ep dousi_common_lib)
 TARGET_LINK_LIBRARIES(example_client dousi_common_lib pthread)
 
 # basic_server_for_test
 ADD_EXECUTABLE(basic_server_for_test
         tests/test_utils/basic_server_for_test.cc
-        src/core/executor/connection_session.cc
+        src/stream/stream.cc
         src/core/executor/executor_runtime.cc)
 ADD_DEPENDENCIES(basic_server_for_test googletest_ep boost_ep dousi_common_lib)
 TARGET_LINK_LIBRARIES(basic_server_for_test dousi_common_lib pthread)
 
 DEFINE_DOUSI_TEST(test_basic_call
-        SRC_FILES tests/basic_call_test.cc src/core/submitter/submitter_runtime.cc src/core/executor/executor_runtime.cc src/core/executor/connection_session.cc
+        SRC_FILES tests/basic_call_test.cc src/core/submitter/submitter_runtime.cc src/core/executor/executor_runtime.cc src/stream/stream.cc
         LINKS dousi_common_lib)
 
 DEFINE_DOUSI_TEST(test_master
@@ -77,5 +77,5 @@ DEFINE_DOUSI_TEST(test_nameof
         LINKS dousi_common_lib)
 
 DEFINE_DOUSI_TEST(test_dousi_method_macro
-        SRC_FILES tests/method_macro_test.cc src/core/executor/executor_runtime.cc src/core/executor/connection_session.cc
+        SRC_FILES tests/method_macro_test.cc src/core/executor/executor_runtime.cc src/stream/stream.cc
         LINKS dousi_common_lib)
