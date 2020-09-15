@@ -2,7 +2,6 @@
 
 #include <nameof/nameof.hpp>
 
-#include <iostream>
 
 class MyClass {
 public:
