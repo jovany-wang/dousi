@@ -26,6 +26,15 @@ TEST(BasicCallTest, TestEchoer) {
         ASSERT_EQ(20, *sub);
 
     }
+    {
+        // Test void return
+        auto void_return = dousi::GetService("VoidReturnService");
+        const auto before = void_return.Call(dousi::Remote(&VoidReturnService::Get)).Get();
+        ASSERT_TRUE("123" == *before);
+        const auto performed = void_return.Call(dousi::Remote(&VoidReturnService::Perform), "456").Get();
+        const auto after = void_return.Call(dousi::Remote(&VoidReturnService::Get)).Get();
+        ASSERT_TRUE("456" == *after);
+    }
 }
 
 

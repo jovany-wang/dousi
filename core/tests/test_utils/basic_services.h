@@ -25,5 +25,18 @@ public:
     }
 };
 
+class VoidReturnService : public dousi::AbstractService {
+public:
+    void Perform(const std::string &str) {
+        data_ = str;
+    }
+
+    std::string Get() {
+        return data_;
+    }
+
+private:
+    std::string data_ = "123";
+};
 
 #endif
