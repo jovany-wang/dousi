@@ -80,9 +80,12 @@ TARGET_LINK_LIBRARIES(basic_server_for_test dousi_common_lib dousi_executor_lib 
 ###################### Dousi Tests #######################
 DEFINE_DOUSI_TEST(test_basic_call SRC_FILES tests/basic_call_test.cc LINKS dousi_common_lib dousi_submitter_lib)
 
+DEFINE_DOUSI_TEST(test_multiple_calls SRC_FILES tests/multiple_calls_with_no_wait.cc LINKS dousi_common_lib dousi_submitter_lib)
+
 DEFINE_DOUSI_TEST(test_master SRC_FILES src/master/master_test.cc LINKS dousi_master_server_lib dousi_common_lib dousi_master_client_lib)
 
 DEFINE_DOUSI_TEST(test_nameof SRC_FILES tests/nameof_test.cc)
 
 DEFINE_DOUSI_TEST(test_dousi_method_macro SRC_FILES tests/method_macro_test.cc)
+
 ###################### Dousi Tests #######################

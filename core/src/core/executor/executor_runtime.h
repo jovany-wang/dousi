@@ -151,7 +151,6 @@ public:
         msgpack::unpacked unpacked;
         msgpack::unpack(unpacked, data.data(), data.size());
         auto tuple = unpacked.get().as<std::tuple<std::string>>();
-        DOUSI_LOG(INFO) << "----------------------ok, oject_id=" << object_id;
         const auto method_name = std::get<0>(tuple);
         registered_methods_[method_name](data.data(), data.size(), result);
 
