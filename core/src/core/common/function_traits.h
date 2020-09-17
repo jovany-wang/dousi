@@ -57,3 +57,18 @@ struct FunctionTraits<R(ClassType::*)(Args...)> : public BaseFunctionTraits<R, A
 ///       int(std::function<int(int, int)>)(int, int) const;
 template <typename ClassType, typename R, typename... Args>
 struct FunctionTraits<R(ClassType::*)(Args...) const> : public BaseFunctionTraits<R, Args...> {};
+
+
+/////// Another trait to trait if it's a void return method.
+struct VoidReturnTag {};
+struct NonVoidReturnTag {};
+
+template <typename ReturnType>
+struct VoidReturnTrait {
+    using Tag = NonVoidReturnTag;
+};
+
+template <>
+struct VoidReturnTrait<void> {
+    using Tag = VoidReturnTag;
+};

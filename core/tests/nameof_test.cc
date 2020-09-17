@@ -27,6 +27,7 @@ TEST(Nameof, TestMethodName) {
 
     constexpr auto void_my_method1 = NAMEOF(&MyClass::VoidMyMethod1);
     ASSERT_EQ("VoidMyMethod1", void_my_method1);
+
 }
 
 

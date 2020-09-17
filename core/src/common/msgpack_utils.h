@@ -6,10 +6,10 @@
 namespace dousi {
 namespace common {
 
-template<typename... Args>
-inline static msgpack::sbuffer PackArgsToBuffer(Args&&... args) {
+template<typename ArgsTupleType>
+inline static msgpack::sbuffer PackArgsToBuffer(ArgsTupleType&& args_tuple) {
     msgpack::sbuffer buffer(1024);
-    msgpack::pack(buffer, std::forward_as_tuple(std::forward<Args>(args)...));
+    msgpack::pack(buffer, args_tuple);
     return buffer;
 }
 

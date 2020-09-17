@@ -18,6 +18,13 @@ int main() {
         calculator.RegisterMethod(dousi::Remote(&Calculator::sub));
     }
 
+    {
+        // VoidReturnService
+        auto void_return = dousi::executor::CreateService<VoidReturnService>();
+        void_return.RegisterMethod(dousi::Remote(&VoidReturnService::Perform));
+        void_return.RegisterMethod(dousi::Remote(&VoidReturnService::Get));
+    }
+
     dousi::executor::Loop();
 
     return 0;
