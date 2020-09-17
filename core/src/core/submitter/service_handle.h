@@ -41,14 +41,6 @@ public:
             using ReturnType = typename FunctionTraits<MethodType>::ReturnType;
             std::string buffer {sbuffer.data(), sbuffer.size()};
 
-            {
-                msgpack::unpacked unpacked;
-                msgpack::unpack(unpacked, buffer.data(), buffer.size());
-                auto tuple = unpacked.get().as<std::tuple<std::string>>();
-                const auto method_name = std::get<0>(tuple);
-                DOUSI_LOG(INFO) << "----------------------ok, oject_id=" << object_id;
-            }
-
             SubmitterRuntime::GetInstance().Submit(object_id, method.GetName(), buffer);
             return DousiFuture<ReturnType> { object_id };
         }
@@ -61,14 +53,6 @@ public:
             msgpack::sbuffer sbuffer = common::PackArgsToBuffer(args_tuple);
 
             std::string buffer {sbuffer.data(), sbuffer.size()};
-            {
-                msgpack::unpacked unpacked;
-                msgpack::unpack(unpacked, buffer.data(), buffer.size());
-                auto tuple = unpacked.get().as<std::tuple<std::string>>();
-                const auto method_name = std::get<0>(tuple);
-                DOUSI_LOG(INFO) << "----------------------ok, oject_id=" << object_id;
-            }
-
             SubmitterRuntime::GetInstance().Submit(object_id, method.GetName(), buffer);
             return DousiFuture<bool> { object_id };
         }
