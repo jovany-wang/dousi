@@ -62,9 +62,8 @@ public:
         return DousiService<ServiceType>(service_ptr);
     }
 
-    // This could be refined as a lambda.
     template<typename MethodType, typename ServiceOriginalType>
-    static void InvokeHelper(
+    static void VoidReturnInvokeHelper(
             const MethodType &method,
             DousiService<ServiceOriginalType> *service_instance,
             const char *data,
@@ -87,10 +86,60 @@ public:
         DOUSI_LOG(INFO) << "Invoke the user method: " << std::string(data, size);
     }
 
+    template<typename ReturnType>
+    struct InvokeHelper {
+        // This could be refined as a lambda.
+        template<typename MethodType, typename ServiceOriginalType>
+        static void Invoke(
+                const MethodType &method,
+                DousiService<ServiceOriginalType> *service_instance,
+                const char *data,
+                size_t size,
+                std::string &result) {
+            msgpack::unpacked unpacked;
+            msgpack::unpack(unpacked, data, size);
+            using MethodNameWithArgsTupleTypes = typename FunctionTraits<MethodType>::MethodNameWithArgsTuple;
+            auto method_name_and_args_tuple = unpacked.get().as<MethodNameWithArgsTupleTypes>();
+
+            auto ret = TraitAndCall(method, service_instance->GetServiceObjectRef(), method_name_and_args_tuple);
+//            using ReturnType = typename FunctionTraits<MethodType>::ReturnType;
+            DOUSI_LOG(INFO) << "The type of the result is " << NAMEOF_TYPE(ReturnType) << ", and the result = " << ret;
+
+            // Serialize result.
+            msgpack::sbuffer buffer(1024);
+            msgpack::pack(buffer, ret);
+            result = {buffer.data(), buffer.size()};
+
+            DOUSI_LOG(INFO) << "Invoke the user method: " << std::string(data, size);
+        }
+    };
+
+    template<>
+    struct InvokeHelper<void> {
+        // This could be refined as a lambda.
+        template<typename MethodType, typename ServiceOriginalType>
+        static void Invoke(
+                const MethodType &method,
+                DousiService<ServiceOriginalType> *service_instance,
+                const char *data,
+                size_t size,
+                std::string &result) {
+            msgpack::unpacked unpacked;
+            msgpack::unpack(unpacked, data, size);
+            using MethodNameWithArgsTupleTypes = typename FunctionTraits<MethodType>::MethodNameWithArgsTuple;
+            auto method_name_and_args_tuple = unpacked.get().as<MethodNameWithArgsTupleTypes>();
+
+            TraitAndCallVoidReturn(method, service_instance->GetServiceObjectRef(), method_name_and_args_tuple);
+//            using ReturnType = typename FunctionTraits<MethodType>::ReturnType;
+            DOUSI_LOG(INFO) << "The type of the result is void.";
+            DOUSI_LOG(INFO) << "Invoke the user method: " << std::string(data, size);
+        }
+    };
+
     template<typename ServiceOriginalType, typename MethodType>
     void RegisterMethod(DousiService<ServiceOriginalType> *service_instance, RemoteMethod<MethodType> remote_method) {
         registered_methods_[remote_method.GetName()] =  std::bind(
-                &ExecutorRuntime::InvokeHelper<MethodType, ServiceOriginalType>,
+                &InvokeHelper<typename FunctionTraits<MethodType>::ReturnType>::template Invoke<MethodType, ServiceOriginalType>,
                 remote_method.GetMethod(),
                 service_instance,
                 std::placeholders::_1,
