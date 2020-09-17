@@ -15,7 +15,7 @@ TEST(MultipleCallsTest, TestCallsWithNoWait) {
         echoer.Call(dousi::Remote(&Echoer::echo), "A");
         echoer.Call(dousi::Remote(&Echoer::echo), "B");
         auto echoed_str = echoer.Call(dousi::Remote(&Echoer::echo), "C").Get();
-        ASSERT_TRUE("hello world" == *echoed_str);
+        ASSERT_TRUE("C" == *echoed_str);
     }
 
 }
