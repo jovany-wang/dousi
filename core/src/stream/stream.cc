@@ -70,14 +70,12 @@ void AsioStream::DoReadBody(uint32_t object_id, uint32_t body_size) {
 }
 
 void AsioStream::Write(uint32_t object_id, const std::string &data) {
-    const auto data_size = data.size();
     // TODO(qwang): Use buffer to avoid this copy.
-    DoWriteObjectID(object_id, /*done_callback=*/[data, data_size, this]() {
-        DoWriteHeader(data_size, /*done_callback=*/[data, this]() {
-            this->DoWriteBody(data, nullptr);
-        });
-    });
-
+    /// Note that we shouldn't invoke `DoWriteHeader` in the first `done_callback`.
+    /// Otherwise the `multiple_calls_with_no_wait.cc` couldn't pass.
+    DoWriteObjectID(object_id, nullptr);
+    DoWriteHeader(data.size(), nullptr);
+    DoWriteBody(data, nullptr);
 }
 
 void AsioStream::DoWriteObjectID(uint32_t object_id, const std::function<void()> &done_callback) {
