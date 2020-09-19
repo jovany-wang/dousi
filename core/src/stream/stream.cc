@@ -2,6 +2,8 @@
 #include "stream/stream.h"
 #include "common/logging.h"
 
+#include <vector>
+
 namespace dousi {
 
 
@@ -73,62 +75,24 @@ void AsioStream::Write(uint32_t object_id, const std::string &data) {
     // TODO(qwang): Use buffer to avoid this copy.
     /// Note that we shouldn't invoke `DoWriteHeader` in the first `done_callback`.
     /// Otherwise the `multiple_calls_with_no_wait.cc` couldn't pass.
-    DoWriteObjectID(object_id, nullptr);
-    DoWriteHeader(data.size(), nullptr);
-    DoWriteBody(data, nullptr);
-}
-
-void AsioStream::DoWriteObjectID(uint32_t object_id, const std::function<void()> &done_callback) {
-    char header[sizeof(object_id)];
-    memcpy(header, &object_id, sizeof(object_id));
+    auto object_id_ptr = std::make_shared<uint32_t>(object_id);
+    auto header_ptr  = std::make_shared<uint32_t>(data.size());
+    auto data_ptr = std::make_shared<std::string>(data);
+    auto self = this->shared_from_this();
     boost::asio::async_write(
             socket_,
-            boost::asio::buffer(header, sizeof(object_id)),
-            [this, done_callback, object_id](boost::system::error_code error_code, size_t) {
+            std::vector<boost::asio::const_buffer> {
+                boost::asio::buffer(object_id_ptr.get(), sizeof(object_id)),
+                boost::asio::buffer(header_ptr.get(), sizeof(uint32_t)),
+                boost::asio::buffer(data_ptr->data(), data_ptr->size())
+                },
+                // Pass `self` and these shared_ptrs to guarantee that the data get freed after being used.
+            [self, object_id_ptr, header_ptr, data_ptr, this](boost::system::error_code error_code, size_t) {
                 if (error_code) {
                     socket_.close();
-                    DOUSI_LOG(INFO) << "Failed to write object_id to server with error code:" << error_code.message();
+                    DOUSI_LOG(INFO) << "Failed to write message to peer with error code:" << error_code;
                 } else {
-                    DOUSI_LOG(DEBUG) << "Succeeded to write object_id to server, object_id=" << object_id;
-                    if (done_callback) {
-                        done_callback();
-                    }
-                }
-            });
-}
-
-void AsioStream::DoWriteHeader(uint32_t data_size, const std::function<void()> &done_callback) {
-    char header[sizeof(data_size)];
-    memcpy(header, &data_size, sizeof(data_size));
-    boost::asio::async_write(
-            socket_,
-            boost::asio::buffer(header, sizeof(data_size)),
-            [this, done_callback, data_size](boost::system::error_code error_code, size_t) {
-                if (error_code) {
-                    socket_.close();
-                    DOUSI_LOG(INFO) << "Failed to write header to server with error code:" << error_code;
-                } else {
-                    DOUSI_LOG(DEBUG) << "Succeeded to write header to server, header=" << data_size;
-                    if (done_callback) {
-                        done_callback();
-                    }
-                }
-            });
-}
-
-void AsioStream::DoWriteBody(const std::string &data, const std::function<void()> &done_callback) {
-    const auto data_size = data.size();
-    socket_.async_send(
-            boost::asio::buffer(data.data(), data.size()),
-            [data_size, done_callback](const boost::system::error_code &error, std::size_t bytes_transferred) {
-                if (data_size != bytes_transferred) {
-                    DOUSI_LOG(INFO) << "erroring, bytes_transferred=" << bytes_transferred
-                                    << ", but result_size=" << data_size;
-                    return;
-                }
-                DOUSI_LOG(INFO) << "Succeeded to send response to client.";
-                if (done_callback) {
-                    done_callback();
+                    DOUSI_LOG(DEBUG) << "Succeeded to write a message to peer, header=" << *header_ptr;
                 }
             });
 }
