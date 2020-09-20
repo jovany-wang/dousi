@@ -22,7 +22,10 @@ static auto TraitAndCallVoidReturn(
 template <typename MethodType, typename ServiceOriginalType, size_t... Index, typename... Args>
 inline static auto TraitAndCall2(
         const MethodType& method,
-        ServiceOriginalType service_object,
+        /// Note that this `service_object` should be passed by reference to make sure
+        /// the methods will be performed on one service instance. The issue of that is
+        /// https://github.com/jovany-wang/dousi/issues/12
+        ServiceOriginalType &service_object,
         const std::index_sequence<Index ...>&, std::tuple<std::string, Args...> tuple) {
     return (service_object.*method)(std::move(std::get<Index + 1>(tuple)) ...);
 }
@@ -30,7 +33,7 @@ inline static auto TraitAndCall2(
 template <typename MethodType, typename ServiceOriginalType, size_t... Index, typename... Args>
 inline static auto TraitAndCall2VoidReturn(
         const MethodType& method,
-        ServiceOriginalType service_object,
+        ServiceOriginalType &service_object,
         const std::index_sequence<Index ...>&, std::tuple<std::string, Args...> tuple) {
     (service_object.*method)(std::move(std::get<Index + 1>(tuple)) ...);
 }
