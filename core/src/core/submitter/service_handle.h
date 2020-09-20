@@ -73,7 +73,9 @@ auto ServiceHandle::CallWithMethodName(RemoteMethod<MethodType> method, ArgTypes
     return InternalCall(
             method,
             std::forward_as_tuple(std::forward<ArgTypes>(args)...),
-            typename VoidReturnTrait<ReturnType>::Tag {});}
+            typename VoidReturnTrait<ReturnType>::Tag {});
 }
+
+} // namespace dousi
 
 #endif

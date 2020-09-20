@@ -1,5 +1,5 @@
 
-#include "stream/stream.h"
+#include "stream.h"
 #include "common/logging.h"
 
 #include <vector>

@@ -25,7 +25,7 @@ ADD_LIBRARY(dousi_common_lib src/common/endpoint.cc)
 ADD_DEPENDENCIES(dousi_common_lib boost_ep)
 
 # dousi_stream_lib
-ADD_LIBRARY(dousi_stream_lib src/stream/stream.cc)
+ADD_LIBRARY(dousi_stream_lib src/core/stream/stream.cc)
 ADD_DEPENDENCIES(dousi_stream_lib dousi_common_lib boost_ep)
 TARGET_LINK_LIBRARIES(dousi_stream_lib dousi_common_lib)
 
@@ -40,12 +40,12 @@ ADD_DEPENDENCIES(dousi_submitter_lib dousi_common_lib dousi_stream_lib boost_ep)
 TARGET_LINK_LIBRARIES(dousi_submitter_lib dousi_common_lib dousi_stream_lib)
 
 # dousi_master_server_lib
-ADD_LIBRARY(dousi_master_server_lib src/master/server/master_server.cc src/master/server/master_client_session.cc)
+ADD_LIBRARY(dousi_master_server_lib src/runtime/master/server/master_server.cc src/runtime/master/server/master_client_session.cc)
 ADD_DEPENDENCIES(dousi_master_server_lib boost_ep dousi_common_lib gflags_ep msgpack_ep)
 TARGET_LINK_LIBRARIES(dousi_master_server_lib pthread)
 
 # dousi_master_client_lib
-ADD_LIBRARY(dousi_master_client_lib src/master/client/master_client.cc)
+ADD_LIBRARY(dousi_master_client_lib src/runtime/master/client/master_client.cc)
 ADD_DEPENDENCIES(dousi_master_client_lib boost_ep dousi_common_lib msgpack_ep)
 TARGET_LINK_LIBRARIES(dousi_master_client_lib pthread)
 
@@ -53,12 +53,12 @@ TARGET_LINK_LIBRARIES(dousi_master_client_lib pthread)
 
 
 # master_server_main binary
-ADD_EXECUTABLE(master_server_main src/master/master_server_main.cc)
+ADD_EXECUTABLE(master_server_main src/runtime/master/master_server_main.cc)
 ADD_DEPENDENCIES(master_server_main dousi_master_server_lib dousi_common_lib boost_ep gflags_ep msgpack_ep)
 TARGET_LINK_LIBRARIES(master_server_main dousi_master_server_lib dousi_common_lib ${GFLAGS_STATIC_LIB} pthread)
 
 # master client binary
-ADD_EXECUTABLE(master_client_main src/master/master_client_main.cc)
+ADD_EXECUTABLE(master_client_main src/runtime/master/master_client_main.cc)
 ADD_DEPENDENCIES(master_client_main dousi_master_client_lib dousi_common_lib boost_ep msgpack_ep)
 TARGET_LINK_LIBRARIES(master_client_main dousi_common_lib dousi_master_client_lib ${GFLAGS_STATIC_LIB} pthread)
 
@@ -82,7 +82,7 @@ DEFINE_DOUSI_TEST(test_basic_call SRC_FILES tests/basic_call_test.cc LINKS dousi
 
 DEFINE_DOUSI_TEST(test_multiple_calls SRC_FILES tests/multiple_calls_with_no_wait.cc LINKS dousi_common_lib dousi_submitter_lib)
 
-DEFINE_DOUSI_TEST(test_master SRC_FILES src/master/master_test.cc LINKS dousi_master_server_lib dousi_common_lib dousi_master_client_lib)
+DEFINE_DOUSI_TEST(test_master SRC_FILES src/runtime/master/master_test.cc LINKS dousi_master_server_lib dousi_common_lib dousi_master_client_lib)
 
 DEFINE_DOUSI_TEST(test_nameof SRC_FILES tests/nameof_test.cc)
 
