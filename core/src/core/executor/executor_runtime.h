@@ -12,7 +12,7 @@
 #include "common/noncopyable.h"
 
 #include "core/common/tuple_traits.h"
-#include "stream/stream.h"
+#include "core/stream/stream.h"
 
 #include <unordered_map>
 #include <string>

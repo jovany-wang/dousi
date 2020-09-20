@@ -12,7 +12,7 @@
 #include "common/logging.h"
 #include "common/endpoint.h"
 
-#include "stream/stream.h"
+#include "core/stream/stream.h"
 
 #include <nameof/nameof.hpp>
 
