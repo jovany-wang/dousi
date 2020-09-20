@@ -79,12 +79,9 @@ struct InvokeHelper<void> {
 /**
  * A singleton executor runtime of dousi.
  */
-class ExecutorRuntime : public common::Noncopyable {
+class Executor : public std::enable_shared_from_this<Executor> {
 public:
-    static ExecutorRuntime &GetInstance() {
-        static ExecutorRuntime runtime;
-        return runtime;
-    }
+    Executor() : io_service_(), work_(io_service_) {}
 
     void Init(const std::string &listening_address) {
         this->listening_address_ = listening_address;
@@ -108,7 +105,7 @@ public:
         DOUSI_LOG(INFO) << "Registering service: " << service_name;
         auto service_ptr = std::make_shared<ServiceType>();
         created_services_[service_name] = service_ptr;
-        return DousiService<ServiceType>(service_ptr);
+        return DousiService<ServiceType>(shared_from_this(), service_ptr);
     }
 
     template<typename ServiceOriginalType, typename MethodType>
@@ -147,12 +144,9 @@ private:
     void DoAccept();
 
 private:
-    ExecutorRuntime() :io_service_(), work_(io_service_) {
-    };
-
-private:
     std::atomic<uint64_t> curr_stream_id_ =  0;
 
+    // Whether this is unused? If so, remove AbstractService.
     std::unordered_map<std::string, std::shared_ptr<AbstractService>> created_services_;
 
     std::unordered_map<std::string, std::function<void(const char *, size_t, std::string &)>> registered_methods_;

@@ -1,8 +1,8 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "runtime/master/server/master_server.h"
-#include "runtime/master/client/master_client.h"
+#include "runtime/distributed/master/server/master_server.h"
+#include "runtime/distributed/master/client/master_client.h"
 #include "common/endpoint.h"
 #include "common/logging.h"
 

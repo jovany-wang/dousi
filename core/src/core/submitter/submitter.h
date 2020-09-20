@@ -21,20 +21,15 @@ namespace dousi {
 
 class ServiceHandle;
 
-class SubmitterRuntime final {
+class Submitter : public std::enable_shared_from_this<Submitter> {
 public:
-    static SubmitterRuntime &GetInstance() {
-        static SubmitterRuntime submitter_runtime;
-        return submitter_runtime;
-    }
-
-    ~SubmitterRuntime() {
+    ~Submitter() {
 //        stream_.Close();
         io_service_.stop();
         io_service_thread_->join();
     }
 
-    SubmitterRuntime()
+    Submitter()
         : work_(io_service_) {
     }
 
@@ -83,7 +78,7 @@ public:
         return ret;
     }
 
-    static ServiceHandle GetService(const std::string &service_name);
+    ServiceHandle GetService(const std::string &service_name);
 
 private:
     void DoConnect(const asio_tcp::resolver::results_type &endpoints) {

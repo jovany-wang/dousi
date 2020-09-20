@@ -1,11 +1,11 @@
 
-#include "core/executor/executor_runtime.h"
+#include "core/executor/executor.h"
 
 #include <memory>
 
 namespace dousi {
 
-void ExecutorRuntime::DoAccept() {
+void Executor::DoAccept() {
     acceptor_->async_accept([this](boost::system::error_code error_code, asio_tcp::socket socket) {
         if (!error_code) {
             DOUSI_LOG(INFO) << "Succeed to accepted a connection.";

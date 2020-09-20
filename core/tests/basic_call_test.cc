@@ -3,20 +3,20 @@
 #include "test_utils/basic_services.h"
 
 #include <nameof/nameof.hpp>
-#include "core/submitter/api.h"
 #include "core/dousi.h"
+#include "runtime/direct/rpc_client.h"
 
 TEST(BasicCallTest, TestEchoer) {
+    dousi::RpcClient rpc_client {"127.0.0.1:10002"};
     {
         // Test echo
-        dousi::Init("127.0.0.1:10002");
-        auto echoer = dousi::GetService("Echoer");
+        auto echoer = rpc_client.GetService("Echoer");
         auto echoed_str = echoer.Call(dousi::Remote(&Echoer::echo), "hello world").Get();
         ASSERT_TRUE("hello world" == *echoed_str);
     }
     {
         // Test calculator
-        auto calculator = dousi::GetService("Calculator");
+        auto calculator = rpc_client.GetService("Calculator");
         const auto sum1 = calculator.Call(dousi::Remote(&Calculator::add), 10, 29).Get();
         ASSERT_EQ(39, *sum1);
         const auto sum2 = calculator.Call(dousi::Remote(&Calculator::add), 20, 30).Get();
@@ -28,7 +28,7 @@ TEST(BasicCallTest, TestEchoer) {
     }
     {
         // Test void return
-        auto void_return = dousi::GetService("VoidReturnService");
+        auto void_return = rpc_client.GetService("VoidReturnService");
         const auto before = void_return.Call(dousi::Remote(&VoidReturnService::Get)).Get();
         ASSERT_TRUE("123" == *before);
         void_return.Call(dousi::Remote(&VoidReturnService::Perform), "456");
