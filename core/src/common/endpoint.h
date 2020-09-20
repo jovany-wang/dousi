@@ -22,6 +22,13 @@ class Endpoint {
 public:
   Endpoint() = delete;
 
+  explicit Endpoint(const std::string &address) {
+      const auto index = address.find(':');
+      host_ = address.substr(0, index);
+      // Note that stoi may throw an exception once the format is incorrect.
+      port_ = std::stoi(address.substr(index + 1, address.size()));
+  }
+
   Endpoint(std::string host, uint16_t port) : host_(std::move(host)), port_(port) {}
 
   Endpoint(const Endpoint &other) noexcept : host_(other.host_), port_(other.port_) {}

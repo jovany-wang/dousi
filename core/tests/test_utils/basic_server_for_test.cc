@@ -5,7 +5,7 @@
 
 int main() {
     // This is the util server to test.
-    dousi::executor::Init("127.0.0.1:10001");
+    dousi::executor::Init("127.0.0.1:10002");
     {
         // Echo service
         dousi::DousiService<Echoer> echoer = dousi::executor::CreateService<Echoer>();
