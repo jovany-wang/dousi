@@ -4,7 +4,7 @@
 
 #include "dousi_future.h"
 
-#include "core/submitter/submitter_runtime.h"
+#include "core/submitter/submitter.h"
 #include "core/common/function_traits.h"
 #include "common/msgpack_utils.h"
 
@@ -21,7 +21,8 @@ class RemoteMethod;
 
 class ServiceHandle {
 public:
-    explicit ServiceHandle(std::string service_name) :service_name_(std::move(service_name)) {}
+    ServiceHandle(std::shared_ptr<Submitter> dousi_submitter, std::string service_name)
+            : dousi_submitter_(std::move(dousi_submitter)), service_name_(std::move(service_name)) {}
 
     template<typename MethodType, typename... ArgTypes>
     auto Call(RemoteMethod<MethodType> method, ArgTypes... args);
@@ -31,32 +32,35 @@ public:
 
 private:
     template<typename MethodType, typename ArgsTupleType>
-    static auto InternalCall(RemoteMethod<MethodType> method, ArgsTupleType &&args_tuple, NonVoidReturnTag unused)
-    -> DousiFuture<typename FunctionTraits<MethodType>::ReturnType> {
-        const auto object_id = SubmitterRuntime::GetInstance().RequestObjectID();
+    auto InternalCall(RemoteMethod<MethodType> method, ArgsTupleType &&args_tuple, NonVoidReturnTag unused)
+            -> DousiFuture<typename FunctionTraits<MethodType>::ReturnType> {
+        const auto object_id = dousi_submitter_->RequestObjectID();
 
         msgpack::sbuffer sbuffer = common::PackArgsToBuffer(std::forward<ArgsTupleType>(args_tuple));
         using ReturnType = typename FunctionTraits<MethodType>::ReturnType;
         std::string buffer {sbuffer.data(), sbuffer.size()};
 
-        SubmitterRuntime::GetInstance().Submit(object_id, method.GetName(), buffer);
-        return DousiFuture<ReturnType> { object_id };
+        dousi_submitter_->Submit(object_id, method.GetName(), buffer);
+        return DousiFuture<ReturnType> { dousi_submitter_, object_id };
     }
 
     template<typename MethodType, typename ArgsTupleType>
-    static auto InternalCall(RemoteMethod<MethodType> method, ArgsTupleType &&args_tuple, VoidReturnTag unused)
-    -> DousiFuture<bool> {
-        const auto object_id = SubmitterRuntime::GetInstance().RequestObjectID();
+    auto InternalCall(RemoteMethod<MethodType> method, ArgsTupleType &&args_tuple, VoidReturnTag unused)
+            -> DousiFuture<bool> {
+        const auto object_id = dousi_submitter_->RequestObjectID();
 
         msgpack::sbuffer sbuffer = common::PackArgsToBuffer(args_tuple);
 
         std::string buffer {sbuffer.data(), sbuffer.size()};
-        SubmitterRuntime::GetInstance().Submit(object_id, method.GetName(), buffer);
-        return DousiFuture<bool> { object_id };
+        dousi_submitter_->Submit(object_id, method.GetName(), buffer);
+        return DousiFuture<bool> { dousi_submitter_, object_id };
     }
 
 private:
     std::string service_name_;
+
+    // The submitter that to submit requests.
+    std::shared_ptr<Submitter> dousi_submitter_;
 };
 
 

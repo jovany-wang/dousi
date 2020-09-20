@@ -35,7 +35,7 @@ ADD_DEPENDENCIES(dousi_executor_lib dousi_common_lib dousi_stream_lib boost_ep)
 TARGET_LINK_LIBRARIES(dousi_executor_lib dousi_common_lib dousi_stream_lib)
 
 # dousi_submitter_lib
-ADD_LIBRARY(dousi_submitter_lib src/core/submitter/submitter_runtime.cc)
+ADD_LIBRARY(dousi_submitter_lib src/core/submitter/submitter.cc)
 ADD_DEPENDENCIES(dousi_submitter_lib dousi_common_lib dousi_stream_lib boost_ep)
 TARGET_LINK_LIBRARIES(dousi_submitter_lib dousi_common_lib dousi_stream_lib)
 

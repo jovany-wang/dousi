@@ -6,12 +6,12 @@
 namespace dousi {
 
 inline static void Init(const std::string &server_address) {
-    SubmitterRuntime::GetInstance().Init(server_address);
+    Submitter::GetInstance().Init(server_address);
 }
 
 // TODO(qwang): This should refined as a general type call.
 inline ServiceHandle GetService(const std::string &service_name) {
-    return SubmitterRuntime::GetInstance().GetService(service_name);
+    return Submitter::GetInstance().GetService(service_name);
 }
 
 }
