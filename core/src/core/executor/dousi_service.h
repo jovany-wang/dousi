@@ -1,7 +1,7 @@
 #ifndef _DOUSI_SERVICE_H_
 #define _DOUSI_SERVICE_H_
 
-#include "core/executor/executor_runtime.h"
+#include "core/executor/executor.h"
 #include "common/logging.h"
 
 #include <string>
@@ -13,7 +13,8 @@ template<typename ServiceType>
 class DousiService : std::enable_shared_from_this<DousiService<ServiceType>> {
 public:
 
-    explicit DousiService(std::shared_ptr<ServiceType> service_object) : service_object_(service_object) {}
+    DousiService(std::shared_ptr<Executor> dousi_executor, std::shared_ptr<ServiceType> service_object)
+        : dousi_executor_(std::move(dousi_executor)), service_object_(std::move(service_object)) {}
 
     [[nodiscard]] std::string GetName() const { return service_name_; }
 
@@ -24,13 +25,16 @@ public:
     template<typename MethodType>
     void RegisterMethod(RemoteMethod<MethodType> remote_method) {
         DOUSI_LOG(INFO) << "Registering method:" << remote_method.GetName() << ".";
-        ExecutorRuntime::GetInstance().RegisterMethod(this, remote_method);
+        dousi_executor_->RegisterMethod(this, remote_method);
     }
 
 private:
     const std::string service_name_;
 
     const std::shared_ptr<ServiceType> service_object_ = nullptr;
+
+    // The DousiExecutor that the service belong to.
+    std::shared_ptr<dousi::Executor> dousi_executor_ = nullptr;
 };
 
 }

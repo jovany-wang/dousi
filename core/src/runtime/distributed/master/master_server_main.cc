@@ -1,4 +1,4 @@
-#include "runtime/master/server/master_server.h"
+#include "runtime/distributed/master/server/master_server.h"
 
 #include <iostream>
 #include <gflags/gflags.h>
