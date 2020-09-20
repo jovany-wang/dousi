@@ -26,6 +26,9 @@ public:
     template<typename MethodType, typename... ArgTypes>
     auto Call(RemoteMethod<MethodType> method, ArgTypes... args);
 
+    template<typename MethodType, typename... ArgTypes>
+    auto CallWithMethodName(RemoteMethod<MethodType> method, ArgTypes... args);
+
 private:
     template<typename MethodType, typename ArgsTupleType>
     static auto InternalCall(RemoteMethod<MethodType> method, ArgsTupleType &&args_tuple, NonVoidReturnTag unused)
@@ -61,12 +64,16 @@ private:
 
 template<typename MethodType, typename... ArgTypes>
 auto ServiceHandle::Call(RemoteMethod<MethodType> method, ArgTypes... args) {
+    return CallWithMethodName(method, method.GetName(), args...);
+}
+
+template<typename MethodType, typename... ArgTypes>
+auto ServiceHandle::CallWithMethodName(RemoteMethod<MethodType> method, ArgTypes... args) {
     using ReturnType = typename FunctionTraits<MethodType>::ReturnType;
     return InternalCall(
             method,
             std::forward_as_tuple(std::forward<ArgTypes>(args)...),
             typename VoidReturnTrait<ReturnType>::Tag {});}
-
 }
 
 #endif
