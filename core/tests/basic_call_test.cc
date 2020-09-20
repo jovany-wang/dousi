@@ -34,8 +34,7 @@ TEST(BasicCallTest, TestEchoer) {
         void_return.Call(dousi::Remote(&VoidReturnService::Perform), "456");
         std::this_thread::sleep_for(std::chrono::milliseconds(3 * 1000));
         const auto after = void_return.Call(dousi::Remote(&VoidReturnService::Get)).Get();
-        // TODO(qwang): This is a bug here. It should be `456`.
-        ASSERT_TRUE("123" == *after);
+        ASSERT_TRUE("456" == *after);
     }
 }
 
