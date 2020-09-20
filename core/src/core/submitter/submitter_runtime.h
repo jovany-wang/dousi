@@ -43,7 +43,7 @@ public:
     }
 
     void Init(const std::string &server_address) {
-        DoConnect(Endpoint("127.0.0.1", 10001).Resolve(io_service_));
+        DoConnect(Endpoint(server_address).Resolve(io_service_));
         // Async read from stream.
         stream_->Start();
         io_service_thread_ = std::make_unique<std::thread>([this]() {

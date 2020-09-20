@@ -89,7 +89,8 @@ public:
     void Init(const std::string &listening_address) {
         this->listening_address_ = listening_address;
         // TODO(qwang): Do not hardcode this.
-        acceptor_ = std::make_unique<boost::asio::ip::tcp::acceptor>(io_service_, Endpoint("127.0.0.1", 10001).GetTcpEndpoint());
+        acceptor_ = std::make_unique<boost::asio::ip::tcp::acceptor>(
+                io_service_, Endpoint(listening_address).GetTcpEndpoint());
     }
 
     void Shutdown() {

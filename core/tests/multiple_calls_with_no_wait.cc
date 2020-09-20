@@ -10,7 +10,7 @@ TEST(MultipleCallsTest, TestCallsWithNoWait) {
     {
         /// This test tests that we repeatedly calls multiple times with no any `Get()`.
         /// It can test if the client send the some parts of one message together.
-        dousi::Init("127.0.0.1:10001");
+        dousi::Init("127.0.0.1:10002");
         auto echoer = dousi::GetService("Echoer");
         echoer.Call(dousi::Remote(&Echoer::echo), "A");
         echoer.Call(dousi::Remote(&Echoer::echo), "B");
