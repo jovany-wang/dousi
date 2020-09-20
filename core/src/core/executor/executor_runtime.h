@@ -88,7 +88,6 @@ public:
 
     void Init(const std::string &listening_address) {
         this->listening_address_ = listening_address;
-        // TODO(qwang): Do not hardcode this.
         acceptor_ = std::make_unique<boost::asio::ip::tcp::acceptor>(
                 io_service_, Endpoint(listening_address).GetTcpEndpoint());
     }
@@ -110,30 +109,6 @@ public:
         auto service_ptr = std::make_shared<ServiceType>();
         created_services_[service_name] = service_ptr;
         return DousiService<ServiceType>(service_ptr);
-    }
-
-    template<typename MethodType, typename ServiceOriginalType>
-    static void VoidReturnInvokeHelper(
-            const MethodType &method,
-            DousiService<ServiceOriginalType> *service_instance,
-            const char *data,
-            size_t size,
-            std::string &result) {
-        msgpack::unpacked unpacked;
-        msgpack::unpack(unpacked, data, size);
-        using MethodNameWithArgsTupleTypes = typename FunctionTraits<MethodType>::MethodNameWithArgsTuple;
-        auto method_name_and_args_tuple = unpacked.get().as<MethodNameWithArgsTupleTypes>();
-
-        auto ret = TraitAndCall(method, service_instance->GetServiceObjectRef(), method_name_and_args_tuple);
-        using ReturnType = typename FunctionTraits<MethodType>::ReturnType;
-        DOUSI_LOG(INFO) << "The type of the result is " << NAMEOF_TYPE(ReturnType) << ", and the result = " << ret;
-
-        // Serialize result.
-        msgpack::sbuffer buffer(1024);
-        msgpack::pack(buffer, ret);
-        result = {buffer.data(), buffer.size()};
-
-        DOUSI_LOG(INFO) << "Invoke the user method: " << std::string(data, size);
     }
 
     template<typename ServiceOriginalType, typename MethodType>
