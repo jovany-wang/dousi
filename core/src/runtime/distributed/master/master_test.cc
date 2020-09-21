@@ -22,20 +22,15 @@ using namespace dousi::master;
  * and master client works fine.
  */
 TEST(MasterTest, BasicTest) {
-    boost::asio::io_context io_context(16);
-
     std::thread backend_thread {[]() {
         MasterServer master_server("0.0.0.0:10002");
     }};
 
-    std::this_thread::sleep_for(std::chrono::milliseconds {2*1000});
+    std::this_thread::sleep_for(std::chrono::milliseconds {1 * 1000});
     MasterClient master_client1("127.0.0.1:10002");
     MasterClient master_client2("127.0.0.1:10002");
     MasterClient master_client3("127.0.0.1:10002");
 
-  // Run io_context in a separated thread to make sure we can do other assertions later.
-  std::thread t([&io_context]() { io_context.run(); });
-  std::this_thread::sleep_for(std::chrono::seconds(2));
   master_client1.RegisterService("adder1", "127.0.0.1:10001");
   master_client2.RegisterService("adder2", "127.0.0.1:10002");
   master_client3.RegisterService("adder3", "127.0.0.1:10003");
@@ -43,8 +38,6 @@ TEST(MasterTest, BasicTest) {
   master_client1.RegisterService("adder5", "127.0.0.1:10005");
   master_client2.RegisterService("adder3", "0.0.0.0:0000");
 
-  // TODO(qwang): This should be a `Waitutil()`.
-  std::this_thread::sleep_for(std::chrono::seconds(2));
   auto endpoints = master_client1.GetAllEndpoints();
 
   ASSERT_EQ(5, endpoints.size());
@@ -54,8 +47,7 @@ TEST(MasterTest, BasicTest) {
   ASSERT_EQ("127.0.0.1:10004", endpoints["adder4"]);
   ASSERT_EQ("127.0.0.1:10005", endpoints["adder5"]);
 
-  io_context.stop();
-  t.detach();
+  backend_thread.detach();
 }
 
 int main(int argc, char **argv) {
