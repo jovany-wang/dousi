@@ -12,12 +12,14 @@
 
 #include <boost/asio.hpp>
 
+#include "core/executor/dousi_service.h"
 #include "core/executor/executor.h"
+#include "core/common/remote_annotation.h"
+#include "runtime/distributed/master/master_service.h"
+
 
 namespace dousi {
 namespace master {
-  // Forward declarations for some cross-reference between `MasterClientSession` and `MasterServer`.
-  class MasterClientSession;
 
 /**
  * The master server is a standalone component that provides the service discovery for
@@ -32,14 +34,17 @@ public:
 
   explicit MasterServer(const std::string &listening_address) {
       executor_ = std::make_shared<Executor>();
+      auto service = executor_->CreateService<MasterService>(/*service_name=*/"MasterService");
+      service.RegisterMethod(dousi::Remote(&MasterService::RegisterService));
+      service.RegisterMethod(dousi::Remote(&MasterService::GetAllEndpoints));
       executor_->Init(listening_address);
   }
 
-  virtual ~MasterServer() {
-  }
+  virtual ~MasterServer() = default;
 
 
 private:
+
     std::shared_ptr<Executor> executor_ = nullptr;
 };
 

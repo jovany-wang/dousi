@@ -14,14 +14,14 @@ namespace master {
 class MasterClient {
 public:
 
-  MasterClient(boost::asio::io_context &io_context, const Endpoint &master_server_endpoint)
-    : io_context_(io_context), socket_(io_context) {
-    DoConnect(master_server_endpoint.Resolve(io_context_));
+  MasterClient(const std::string &master_server_address) {
+      submitter_ = std::make_shared<Submitter>();
+      submitter_->Init(master_server_address);
+      auto master_service_handle = submitter_->GetService("MasterService");
+      master_service_handle_ = std::make_shared<ServiceHandle>(std::move(master_service_handle));
   }
 
-  virtual ~MasterClient() {
-    socket_.close();
-  }
+  virtual ~MasterClient() = default;
 
   /**
    * Register a Dousi RPC service to the master server.
@@ -39,18 +39,12 @@ public:
       const std::function<void(bool ok, const std::string &address)> &callback);
 
 private:
-  void DoWriteType(uint8_t type, const std::function<void()>& done_callback);
 
-  void DoWriteHeader(uint32_t body_size, const std::function<void()> &done_callback);
-
-  void DoWriteBody(const std::string &str);
-
-  void DoConnect(const asio_tcp::resolver::results_type &endpoints);
 
 private:
-  boost::asio::io_context &io_context_;
+    std::shared_ptr<Submitter> submitter_ = nullptr;
 
-  asio_tcp::socket socket_;
+    std::shared_ptr<ServiceHandle> master_service_handle_ = nullptr;
 };
 
 } // namespace master
