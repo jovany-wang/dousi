@@ -41,13 +41,13 @@ TARGET_LINK_LIBRARIES(dousi_submitter_lib dousi_common_lib dousi_stream_lib)
 
 # dousi_master_server_lib
 ADD_LIBRARY(dousi_master_server_lib src/runtime/distributed/master/server/master_server.cc)
-ADD_DEPENDENCIES(dousi_master_server_lib boost_ep dousi_common_lib gflags_ep msgpack_ep)
-TARGET_LINK_LIBRARIES(dousi_master_server_lib pthread)
+ADD_DEPENDENCIES(dousi_master_server_lib boost_ep dousi_common_lib dousi_executor_lib gflags_ep msgpack_ep)
+TARGET_LINK_LIBRARIES(dousi_master_server_lib dousi_common_lib dousi_executor_lib pthread)
 
 # dousi_master_client_lib
 ADD_LIBRARY(dousi_master_client_lib src/runtime/distributed/master/client/master_client.cc)
-ADD_DEPENDENCIES(dousi_master_client_lib boost_ep dousi_common_lib msgpack_ep)
-TARGET_LINK_LIBRARIES(dousi_master_client_lib pthread)
+ADD_DEPENDENCIES(dousi_master_client_lib dousi_submitter_lib boost_ep dousi_common_lib msgpack_ep)
+TARGET_LINK_LIBRARIES(dousi_master_client_lib dousi_submitter_lib dousi_common_lib pthread)
 
 ################################## Dousi libraries ###################################
 
@@ -82,7 +82,7 @@ DEFINE_DOUSI_TEST(test_basic_call SRC_FILES tests/basic_call_test.cc LINKS dousi
 
 DEFINE_DOUSI_TEST(test_multiple_calls SRC_FILES tests/multiple_calls_with_no_wait.cc LINKS dousi_common_lib dousi_submitter_lib)
 
-DEFINE_DOUSI_TEST(test_master SRC_FILES src/runtime/distributed/master/master_test.cc LINKS dousi_master_server_lib dousi_common_lib dousi_master_client_lib)
+DEFINE_DOUSI_TEST(test_master SRC_FILES src/runtime/distributed/master/master_test.cc LINKS dousi_master_server_lib dousi_master_client_lib dousi_stream_lib dousi_common_lib)
 
 DEFINE_DOUSI_TEST(test_nameof SRC_FILES tests/nameof_test.cc)
 

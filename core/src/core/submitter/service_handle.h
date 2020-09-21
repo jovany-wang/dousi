@@ -21,16 +21,15 @@ class RemoteMethod;
 
 class ServiceHandle {
 public:
-    ServiceHandle(ServiceHandle &&other)
-            : service_name_(std::move(other.service_name_)),
-            dousi_submitter_(std::move(other.dousi_submitter_)) {
-    }
-
     ServiceHandle(std::shared_ptr<Submitter> dousi_submitter, std::string service_name)
             : dousi_submitter_(std::move(dousi_submitter)), service_name_(std::move(service_name)) {}
 
     template<typename MethodType, typename... ArgTypes>
     auto Call(RemoteMethod<MethodType> method, ArgTypes... args);
+
+    std::string GetServiceName() const {
+        return service_name_;
+    }
 
 private:
 

@@ -1,6 +1,8 @@
 #ifndef _DOUSI_MASTER_MASTER_CLIENT_H_
 #define _DOUSI_MASTER_MASTER_CLIENT_H_
 
+#include "core/submitter/service_handle.h"
+#include "core/submitter/submitter.h"
 #include "common/endpoint.h"
 #include "common/logging.h"
 
@@ -14,11 +16,11 @@ namespace master {
 class MasterClient {
 public:
 
-  MasterClient(const std::string &master_server_address) {
+  explicit MasterClient(const std::string &master_server_address) {
       submitter_ = std::make_shared<Submitter>();
       submitter_->Init(master_server_address);
-      auto master_service_handle = submitter_->GetService("MasterService");
-      master_service_handle_ = std::make_shared<ServiceHandle>(std::move(master_service_handle));
+      const auto master_service_handle = submitter_->GetService("MasterService");
+      master_service_handle_ = std::make_shared<ServiceHandle>(submitter_, master_service_handle.GetServiceName());
   }
 
   virtual ~MasterClient() = default;
@@ -31,6 +33,9 @@ public:
    */
   void RegisterService(const std::string &service_name,
                        const std::string &service_address);
+
+  /// Note that thsi is a sync call.
+  std::unordered_map<std::string, std::string> GetAllEndpoints();
 
   /**
    * Get the service routing from master server.
