@@ -9,6 +9,8 @@ namespace dousi {
 class RpcServer {
 public:
    explicit RpcServer(const std::string &listening_address) {
+       dousi::DousiLog::StartDousiLog("tmp/rpcserver.log",
+                                      dousi::LOG_LEVEL::DEBUG, 10, 3);
        executor_->Init(listening_address);
    }
 

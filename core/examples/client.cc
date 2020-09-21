@@ -11,6 +11,8 @@ int main() {
     dousi::RpcClient rpc_client {"127.0.0.1:10001"};
 
     {
+        dousi::DousiLog::StartDousiLog("tmp/dousiclient.log",
+                                       dousi::LOG_LEVEL::DEBUG, 10, 3);
         // TODO(qwang): This should refined as a general type call.
         ServiceHandle adder1 = rpc_client.GetService("Adder");
         DousiFuture<int> sum_future1 = adder1.Call(Remote(&Adder::add), 2, 3);
