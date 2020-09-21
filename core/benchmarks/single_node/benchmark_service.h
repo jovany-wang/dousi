@@ -1,7 +1,7 @@
 #ifndef _DOUSI_BENCHMARKS_SINGLE_NODE_
 #define _DOUSI_BENCHMARKS_SINGLE_NODE_
 
-#include "Qps.h"
+#include "qps.h"
 #include "core/executor/abstract_service.h"
 #include <string>
 
