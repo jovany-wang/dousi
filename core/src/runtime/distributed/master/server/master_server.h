@@ -38,6 +38,7 @@ public:
       service.RegisterMethod(dousi::Remote(&MasterService::RegisterService));
       service.RegisterMethod(dousi::Remote(&MasterService::GetAllEndpoints));
       executor_->Init(listening_address);
+      executor_->Loop();
   }
 
   virtual ~MasterServer() = default;

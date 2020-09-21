@@ -22,11 +22,16 @@ using namespace dousi::master;
  * and master client works fine.
  */
 TEST(MasterTest, BasicTest) {
-  boost::asio::io_context io_context(16);
-  MasterServer master_server("0.0.0.0:10002");
-  MasterClient master_client1("127.0.0.1:10002");
-  MasterClient master_client2("127.0.0.1:10002");
-  MasterClient master_client3("127.0.0.1:10002");
+    boost::asio::io_context io_context(16);
+
+    std::thread backend_thread {[]() {
+        MasterServer master_server("0.0.0.0:10002");
+    }};
+
+    std::this_thread::sleep_for(std::chrono::milliseconds {2*1000});
+    MasterClient master_client1("127.0.0.1:10002");
+    MasterClient master_client2("127.0.0.1:10002");
+    MasterClient master_client3("127.0.0.1:10002");
 
   // Run io_context in a separated thread to make sure we can do other assertions later.
   std::thread t([&io_context]() { io_context.run(); });
