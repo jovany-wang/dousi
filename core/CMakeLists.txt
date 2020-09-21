@@ -82,3 +82,15 @@ DEFINE_DOUSI_TEST(test_dousi_method_macro SRC_FILES tests/method_macro_test.cc)
 DEFINE_DOUSI_TEST(test_logging SRC_FILES tests/logging_test.cc LINKS dousi_common_lib)
 
 ###################### Dousi Tests #######################
+
+
+###################### Dousi Benchmarks #######################
+ADD_EXECUTABLE(benchmark_server_single_node benchmarks/single_node/benchmark_server.cc)
+ADD_DEPENDENCIES(benchmark_server_single_node dousi_common_lib dousi_executor_lib)
+TARGET_LINK_LIBRARIES(benchmark_server_single_node dousi_common_lib dousi_executor_lib pthread)
+
+ADD_EXECUTABLE(benchmark_client_single_node benchmarks/single_node/benchmark_client.cc)
+ADD_DEPENDENCIES(benchmark_client_single_node dousi_common_lib dousi_submitter_lib)
+TARGET_LINK_LIBRARIES(benchmark_client_single_node dousi_common_lib dousi_submitter_lib pthread)
+
+###################### Dousi Benchmarks #######################
