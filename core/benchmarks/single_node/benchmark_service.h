@@ -1,7 +1,7 @@
 #ifndef _DOUSI_BENCHMARKS_SINGLE_NODE_
 #define _DOUSI_BENCHMARKS_SINGLE_NODE_
 
-#include "qps.h"
+#include "Qps.h"
 #include "core/executor/abstract_service.h"
 #include <string>
 
@@ -14,7 +14,7 @@ public:
     }
 
 private:
-    qps qps_;
+    Qps qps_;
 };
 
 #endif

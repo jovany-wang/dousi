@@ -82,7 +82,7 @@ struct InvokeHelper<void> {
  */
 class Executor : public std::enable_shared_from_this<Executor> {
 public:
-    Executor() : io_service_(), work_(io_service_) {}
+    Executor() : io_service_(std::thread::hardware_concurrency()), work_(io_service_) {}
 
     void Init(const std::string &listening_address) {
         this->listening_address_ = listening_address;
