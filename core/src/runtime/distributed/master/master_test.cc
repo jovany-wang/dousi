@@ -22,14 +22,15 @@ using namespace dousi::master;
  * and master client works fine.
  */
 TEST(MasterTest, BasicTest) {
+    constexpr auto master_address = "127.0.0.1:10001";
     std::thread backend_thread {[]() {
-        MasterServer master_server("0.0.0.0:10002");
+        MasterServer master_server(master_address);
     }};
 
     std::this_thread::sleep_for(std::chrono::milliseconds {1 * 1000});
-    MasterClient master_client1("127.0.0.1:10002");
-    MasterClient master_client2("127.0.0.1:10002");
-    MasterClient master_client3("127.0.0.1:10002");
+    MasterClient master_client1(master_address);
+    MasterClient master_client2(master_address);
+    MasterClient master_client3(master_address);
 
   master_client1.RegisterService("adder1", "127.0.0.1:10001");
   master_client2.RegisterService("adder2", "127.0.0.1:10002");
