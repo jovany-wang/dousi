@@ -11,7 +11,7 @@ namespace dousi {
 class RpcClient {
 public:
     RpcClient(const std::string &server_address) {
-        dousi::DousiLog::StartDousiLog("tmp/rpclient.log",
+        dousi::DousiLog::StartDousiLog("/tmp/dousi/rpclient.log",
                                        dousi::LOG_LEVEL::DEBUG, 10, 3);
         submitter_->Init(server_address);
     }

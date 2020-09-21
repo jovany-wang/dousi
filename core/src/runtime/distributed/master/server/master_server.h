@@ -33,6 +33,8 @@ public:
     io_context_(io_context),
     acceptor_(io_context, listening_endpoint_.GetTcpEndpoint()) {
     DoAccept();
+    dousi::DousiLog::StartDousiLog("/tmp/dousi/MasterServer.log",
+                                     dousi::LOG_LEVEL::DEBUG, 10, 3);
     DOUSI_LOG(INFO) << "MasterServer is now listening on " << listening_endpoint_.ToString();
   }
 

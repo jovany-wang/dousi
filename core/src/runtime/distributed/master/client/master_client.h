@@ -17,6 +17,8 @@ public:
   MasterClient(boost::asio::io_context &io_context, const Endpoint &master_server_endpoint)
     : io_context_(io_context), socket_(io_context) {
     DoConnect(master_server_endpoint.Resolve(io_context_));
+    dousi::DousiLog::StartDousiLog("/tmp/dousi/MasterClient.log",
+                                     dousi::LOG_LEVEL::DEBUG, 10, 3);
   }
 
   virtual ~MasterClient() {
