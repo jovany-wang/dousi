@@ -1,4 +1,4 @@
-#include "master_server.h"
+#include "runtime/distributed/master/master_server.h"
 
 
 namespace dousi {

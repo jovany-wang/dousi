@@ -40,12 +40,12 @@ ADD_DEPENDENCIES(dousi_submitter_lib dousi_common_lib dousi_stream_lib boost_ep)
 TARGET_LINK_LIBRARIES(dousi_submitter_lib dousi_common_lib dousi_stream_lib)
 
 # dousi_master_server_lib
-ADD_LIBRARY(dousi_master_server_lib src/runtime/distributed/master/server/master_server.cc)
+ADD_LIBRARY(dousi_master_server_lib src/runtime/distributed/master/master_server.cc)
 ADD_DEPENDENCIES(dousi_master_server_lib boost_ep dousi_common_lib dousi_executor_lib gflags_ep msgpack_ep)
 TARGET_LINK_LIBRARIES(dousi_master_server_lib dousi_common_lib dousi_executor_lib pthread)
 
 # dousi_master_client_lib
-ADD_LIBRARY(dousi_master_client_lib src/runtime/distributed/master/client/master_client.cc)
+ADD_LIBRARY(dousi_master_client_lib src/runtime/distributed/master/master_client.cc)
 ADD_DEPENDENCIES(dousi_master_client_lib dousi_submitter_lib boost_ep dousi_common_lib msgpack_ep)
 TARGET_LINK_LIBRARIES(dousi_master_client_lib dousi_submitter_lib dousi_common_lib pthread)
 
