@@ -1,5 +1,4 @@
 #include "master_client.h"
-#include "runtime/distributed/master/constants.h"
 #include "core/common/remote_annotation.h"
 #include "runtime/distributed/master/master_service.h"
 

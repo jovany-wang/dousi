@@ -51,17 +51,6 @@ TARGET_LINK_LIBRARIES(dousi_master_client_lib dousi_submitter_lib dousi_common_l
 
 ################################## Dousi libraries ###################################
 
-
-# master_server_main binary
-ADD_EXECUTABLE(master_server_main src/runtime/distributed/master/master_server_main.cc)
-ADD_DEPENDENCIES(master_server_main dousi_master_server_lib dousi_common_lib boost_ep gflags_ep msgpack_ep)
-TARGET_LINK_LIBRARIES(master_server_main dousi_master_server_lib dousi_common_lib ${GFLAGS_STATIC_LIB} pthread)
-
-# master client binary
-ADD_EXECUTABLE(master_client_main src/runtime/distributed/master/master_client_main.cc)
-ADD_DEPENDENCIES(master_client_main dousi_master_client_lib dousi_common_lib boost_ep msgpack_ep)
-TARGET_LINK_LIBRARIES(master_client_main dousi_common_lib dousi_master_client_lib ${GFLAGS_STATIC_LIB} pthread)
-
 # examples server binary
 ADD_EXECUTABLE(example_server examples/server.cc)
 ADD_DEPENDENCIES(example_server googletest_ep boost_ep dousi_common_lib dousi_executor_lib)
