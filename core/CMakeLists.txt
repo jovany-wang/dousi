@@ -10,19 +10,21 @@ INCLUDE(GtestExternalProject)
 INCLUDE(BoostExternalProject)
 INCLUDE(GflagsExternalProject)
 INCLUDE(MsgpackExternalProject)
+INCLUDE(SpdlogExternalProject)
 INCLUDE_DIRECTORIES(src)
 INCLUDE_DIRECTORIES(SYSTEM ${GTEST_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(SYSTEM ${BOOST_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(SYSTEM ${GFLAGS_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(SYSTEM ${MSGPACK_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(SYSTEM ${SPDLOG_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(SYSTEM thirdparty)
 
 LINK_DIRECTORIES(${BOOST_STATIC_LIB_DIR})
 
 ################################## Dousi libraries ###################################
 # dousi_common_lib library
-ADD_LIBRARY(dousi_common_lib src/common/endpoint.cc)
-ADD_DEPENDENCIES(dousi_common_lib boost_ep)
+ADD_LIBRARY(dousi_common_lib src/common/endpoint.cc src/common/logging.cc)
+ADD_DEPENDENCIES(dousi_common_lib boost_ep spdlog_ep)
 
 # dousi_stream_lib
 ADD_LIBRARY(dousi_stream_lib src/core/stream/stream.cc)
@@ -76,5 +78,7 @@ DEFINE_DOUSI_TEST(test_master SRC_FILES src/runtime/distributed/master/master_te
 DEFINE_DOUSI_TEST(test_nameof SRC_FILES tests/nameof_test.cc)
 
 DEFINE_DOUSI_TEST(test_dousi_method_macro SRC_FILES tests/method_macro_test.cc)
+
+DEFINE_DOUSI_TEST(test_logging SRC_FILES tests/logging_test.cc LINKS dousi_common_lib)
 
 ###################### Dousi Tests #######################

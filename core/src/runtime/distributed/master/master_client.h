@@ -17,6 +17,8 @@ class MasterClient {
 public:
 
   explicit MasterClient(const std::string &master_server_address) {
+      dousi::DousiLog::StartDousiLog("/tmp/dousi/MasterClient.log",
+                                     dousi::LOG_LEVEL::DEBUG, 10, 3);
       submitter_ = std::make_shared<Submitter>();
       submitter_->Init(master_server_address);
       const auto master_service_handle = submitter_->GetService("MasterService");

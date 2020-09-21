@@ -32,7 +32,6 @@ TEST(BasicCallTest, TestEchoer) {
         const auto before = void_return.Call(dousi::Remote(&VoidReturnService::Get)).Get();
         ASSERT_TRUE("123" == *before);
         void_return.Call(dousi::Remote(&VoidReturnService::Perform), "456");
-        std::this_thread::sleep_for(std::chrono::milliseconds(3 * 1000));
         const auto after = void_return.Call(dousi::Remote(&VoidReturnService::Get)).Get();
         ASSERT_TRUE("456" == *after);
     }

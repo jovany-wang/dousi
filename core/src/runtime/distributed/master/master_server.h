@@ -33,6 +33,8 @@ public:
   MasterServer() = delete;
 
   explicit MasterServer(const std::string &listening_address) {
+      dousi::DousiLog::StartDousiLog(
+              "/tmp/dousi/MasterServer.log",dousi::LOG_LEVEL::DEBUG, 10, 3);
       executor_ = std::make_shared<Executor>();
       auto service = executor_->CreateService<MasterService>(/*service_name=*/"MasterService");
       service.RegisterMethod(dousi::Remote(&MasterService::RegisterService));
