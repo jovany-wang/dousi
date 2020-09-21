@@ -1,6 +1,8 @@
 #ifndef _DOUSI_MASTER_MASTER_CLIENT_H_
 #define _DOUSI_MASTER_MASTER_CLIENT_H_
 
+#include "core/submitter/service_handle.h"
+#include "core/submitter/submitter.h"
 #include "common/endpoint.h"
 #include "common/logging.h"
 
@@ -14,16 +16,16 @@ namespace master {
 class MasterClient {
 public:
 
-  MasterClient(boost::asio::io_context &io_context, const Endpoint &master_server_endpoint)
-    : io_context_(io_context), socket_(io_context) {
-    DoConnect(master_server_endpoint.Resolve(io_context_));
-    dousi::DousiLog::StartDousiLog("/tmp/dousi/MasterClient.log",
+  explicit MasterClient(const std::string &master_server_address) {
+      dousi::DousiLog::StartDousiLog("/tmp/dousi/MasterClient.log",
                                      dousi::LOG_LEVEL::DEBUG, 10, 3);
+      submitter_ = std::make_shared<Submitter>();
+      submitter_->Init(master_server_address);
+      const auto master_service_handle = submitter_->GetService("MasterService");
+      master_service_handle_ = std::make_shared<ServiceHandle>(submitter_, master_service_handle.GetServiceName());
   }
 
-  virtual ~MasterClient() {
-    socket_.close();
-  }
+  virtual ~MasterClient() = default;
 
   /**
    * Register a Dousi RPC service to the master server.
@@ -34,6 +36,9 @@ public:
   void RegisterService(const std::string &service_name,
                        const std::string &service_address);
 
+  /// Note that thsi is a sync call.
+  std::unordered_map<std::string, std::string> GetAllEndpoints();
+
   /**
    * Get the service routing from master server.
    */
@@ -41,18 +46,12 @@ public:
       const std::function<void(bool ok, const std::string &address)> &callback);
 
 private:
-  void DoWriteType(uint8_t type, const std::function<void()>& done_callback);
 
-  void DoWriteHeader(uint32_t body_size, const std::function<void()> &done_callback);
-
-  void DoWriteBody(const std::string &str);
-
-  void DoConnect(const asio_tcp::resolver::results_type &endpoints);
 
 private:
-  boost::asio::io_context &io_context_;
+    std::shared_ptr<Submitter> submitter_ = nullptr;
 
-  asio_tcp::socket socket_;
+    std::shared_ptr<ServiceHandle> master_service_handle_ = nullptr;
 };
 
 } // namespace master

@@ -91,7 +91,8 @@ private:
                     // TODO(qwang): This deserialized should be refined as a separated io thread.
                     cached_objects_[object_id] = data;
                 });
-        DOUSI_LOG(DEBUG) << "Succeeded to connect message to server.";
+        DOUSI_LOG(DEBUG) << "Succeeded to connect to server.";
+
     }
 
 

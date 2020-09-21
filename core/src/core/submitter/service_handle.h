@@ -27,10 +27,15 @@ public:
     template<typename MethodType, typename... ArgTypes>
     auto Call(RemoteMethod<MethodType> method, ArgTypes... args);
 
+    std::string GetServiceName() const {
+        return service_name_;
+    }
+
+private:
+
     template<typename MethodType, typename... ArgTypes>
     auto CallWithMethodName(RemoteMethod<MethodType> method, ArgTypes... args);
 
-private:
     template<typename MethodType, typename ArgsTupleType>
     auto InternalCall(RemoteMethod<MethodType> method, ArgsTupleType &&args_tuple, NonVoidReturnTag unused)
             -> DousiFuture<typename FunctionTraits<MethodType>::ReturnType> {

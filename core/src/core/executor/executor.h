@@ -43,7 +43,8 @@ struct InvokeHelper {
 
         auto ret = TraitAndCall(method, service_instance->GetServiceObjectRef(), method_name_and_args_tuple);
 //            using ReturnType = typename FunctionTraits<MethodType>::ReturnType;
-        DOUSI_LOG(INFO) << "The type of the result is " << NAMEOF_TYPE(ReturnType) << ", and the result = " << ret;
+// TODO(qwang):
+//        DOUSI_LOG(INFO) << "The type of the result is " << NAMEOF_TYPE(ReturnType) << ", and the result = " << ret;
 
         // Serialize result.
         msgpack::sbuffer buffer(1024);
