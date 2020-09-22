@@ -16,7 +16,7 @@ public:
         thd_ = std::thread([this] {
             while (!stop_) {
                 const auto counter = counter_.load(std::memory_order_acquire);
-                std::cout << "Current qps is " << (counter - last_counter_) << ".\n";
+                std::cout << "Current qps is " << (counter - last_counter_) << ", sum= " << counter << ".\n";
                 last_counter_ = counter;
                 std::this_thread::sleep_for(std::chrono::seconds(1));
                 if (counter > 10000 * 10000) {

@@ -24,6 +24,11 @@ public:
         data_.pop();
     }
 
+    uint32_t GetSize() const {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return data_.size();
+    }
+
     bool IsEmpty() const {
         std::lock_guard<std::mutex> lock(mutex_);
         return data_.empty();
