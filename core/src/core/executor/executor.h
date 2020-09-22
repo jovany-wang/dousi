@@ -85,7 +85,7 @@ class Executor : public std::enable_shared_from_this<Executor> {
 public:
     Executor() : io_service_(), work_(io_service_) {
 //        const static auto thread_num = std::thread::hardware_concurrency();
-        const static auto thread_num = 8;
+        const static auto thread_num = 1;
         for (int i = 0; i < thread_num; ++i) {
             std::thread th {[this]() { this->LoopToPerformRequest(); }};
             thread_pool_.emplace_back(std::move(th));
@@ -96,6 +96,14 @@ public:
             std::thread th { [this]() { this->LoopToWriteResponse(); }};
             write_thread_pool_.emplace_back(std::move(th));
         }
+
+        monitor_th_ = std::make_unique<std::thread>([this]() {
+            while (true) {
+                std::cout << "request queue size = " << request_queue_.GetSize() << std::endl
+                            << "response queue size = " << response_queue_.GetSize() << std::endl;
+                std::this_thread::sleep_for(std::chrono::seconds {5});
+            }
+        });
     }
 
     ~Executor() {
@@ -238,6 +246,8 @@ private:
     std::vector<std::thread> write_thread_pool_;
 
     std::vector<std::thread> read_thread_pool_;
+
+    std::unique_ptr<std::thread> monitor_th_;
 };
 
 }
