@@ -87,7 +87,8 @@ private:
         stream_ = std::make_shared<AsioStream>(
                 /*unused*/0,
                 std::move(socket),
-                /*invocation_callback=*/[this](uint64_t stream_id, uint32_t object_id, const std::string &data, std::string &result) {
+                // TODO(qwang): This invocation_callback should be refined as a non-param lambda.
+                /*invocation_callback=*/[this](uint64_t stream_id, uint32_t object_id, const std::string &data) {
                     // TODO(qwang): This deserialized should be refined as a separated io thread.
                     cached_objects_[object_id] = data;
                 });
