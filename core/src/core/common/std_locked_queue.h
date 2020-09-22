@@ -12,7 +12,7 @@ class StdLockedQueue {
 
 public:
     void Push(T o) {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::unique_lock<std::mutex> lock(mutex_);
         data_.push(std::move(o));
         cond_var_.notify_one();
     }

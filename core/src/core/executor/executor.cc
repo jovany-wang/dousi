@@ -15,8 +15,8 @@ void Executor::DoAccept() {
                     stream_id,
                     std::move(socket),
                     // This result could be removed.
-                    /*callback=*/[this](uint64_t stream_id, uint32_t object_id, const std::string &data) {
-                        InvokeMethod(stream_id, object_id, data);
+                    /*callback=*/[this](uint64_t stream_id, uint32_t object_id, const std::shared_ptr<char> &buffer_ptr, const size_t &buffer_size) {
+                        InvokeMethod(stream_id, object_id, buffer_ptr, buffer_size);
 
                     });
             std::lock_guard<std::mutex> lock {streams_mutex_};
