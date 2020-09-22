@@ -1,3 +1,4 @@
+// TODO(qwang): Refine this.
 #ifndef _DOUSI_RUNTIME_H_
 #define _DOUSI_RUNTIME_H_
 
@@ -10,10 +11,10 @@
 #include <nameof/nameof.hpp>
 
 #include "common/noncopyable.h"
-
+#include "core/executor/dousi_request.h"
 #include "core/common/tuple_traits.h"
 #include "core/stream/stream.h"
-
+#include "core/common/std_locked_queue.h"
 #include <unordered_map>
 #include <string>
 #include <functional>
@@ -82,7 +83,39 @@ struct InvokeHelper<void> {
  */
 class Executor : public std::enable_shared_from_this<Executor> {
 public:
-    Executor() : io_service_(std::thread::hardware_concurrency()), work_(io_service_) {}
+    Executor() : io_service_(), work_(io_service_) {
+        const static auto thread_num = std::thread::hardware_concurrency();
+        for (int i = 0; i < thread_num; ++i) {
+            std::thread th {[this]() { this->LoopToPerformRequest(); }};
+            thread_pool_.emplace_back(std::move(th));
+        }
+
+        write_thread_ = std::make_unique<std::thread>([this]() {
+            while (true) {
+                DousiResponse response;
+                response_queue_.WaitAndPop(&response);
+
+                std::shared_ptr<AsioStream> stream;
+                {
+                    std::lock_guard<std::mutex> lock{streams_mutex_};
+                    auto it = streams_.find(response.stream_id_);
+                    assert(it != streams_.end());
+                    stream = it->second;
+                }
+                // Note that this result is already serialized since we should know the ReturnType of it.
+                stream->Write(response.object_id_, response.result_);
+                DOUSI_LOG(INFO) << "Method invoked, result is \"" << response.result_ << "\".";
+            }
+        });
+    }
+
+    ~Executor() {
+        DOUSI_LOG(DEBUG) << "Joining thread pool.";
+        for (auto &th : thread_pool_) {
+            th.join();
+        }
+        write_thread_->join();
+    }
 
     void Init(const std::string &listening_address) {
         this->listening_address_ = listening_address;
@@ -111,6 +144,7 @@ public:
 
     template<typename ServiceOriginalType, typename MethodType>
     void RegisterMethod(DousiService<ServiceOriginalType> *service_instance, RemoteMethod<MethodType> remote_method) {
+        std::lock_guard<std::mutex> lock {mutex_};
         registered_methods_[remote_method.GetName()] =  std::bind(
                 &InvokeHelper<typename FunctionTraits<MethodType>::ReturnType>::template Invoke<MethodType, ServiceOriginalType>,
                 remote_method.GetMethod(),
@@ -126,15 +160,8 @@ public:
         msgpack::unpack(unpacked, data.data(), data.size());
         auto tuple = unpacked.get().as<std::tuple<std::string>>();
         const auto method_name = std::get<0>(tuple);
-        registered_methods_[method_name](data.data(), data.size(), result);
 
-        auto it = streams_.find(stream_id);
-        assert(it != streams_.end());
-        std::shared_ptr<AsioStream> stream = it->second;
-
-        // Note that this result is already serialized since we should know the ReturnType of it.
-        stream->Write(object_id, result);
-        DOUSI_LOG(INFO) << "Method invoked, method name is " << method_name << ", result is \"" << result << "\".";
+        request_queue_.Push(DousiRequest {object_id, stream_id, data, method_name});
     }
 
     uint64_t RequestStreamID() {
@@ -144,11 +171,33 @@ public:
 private:
     void DoAccept();
 
+    [[noreturn]] void LoopToPerformRequest() {
+        while (true) {
+            DousiRequest request;
+            request_queue_.WaitAndPop(&request);
+
+            std::function<void(const char *, size_t, std::string &)> method;
+            std::string return_value_str;
+            {
+                // perform request.
+                std::lock_guard<std::mutex> lock {mutex_};
+                // TODO(qwang): This can be refined by concurrent hash map.
+                method = registered_methods_[request.method_name_];
+            }
+            method(request.data_.data(), request.data_.size(), return_value_str);
+            response_queue_.Push(DousiResponse {request.object_id_, request.stream_id_, return_value_str});
+        }
+    }
+
 private:
     std::atomic<uint64_t> curr_stream_id_ =  0;
 
     // Whether this is unused? If so, remove AbstractService.
     std::unordered_map<std::string, std::shared_ptr<AbstractService>> created_services_;
+
+    // TODO(qwang): This can be refined as WRLock.
+    // The mutex that
+    std::mutex mutex_;
 
     std::unordered_map<std::string, std::function<void(const char *, size_t, std::string &)>> registered_methods_;
 
@@ -162,8 +211,22 @@ private:
     // acceptor
     std::unique_ptr<boost::asio::ip::tcp::acceptor> acceptor_ = nullptr;
 
+    // TODO(qwang): This can be refined as WRLock.
+    // The mutex that protects stream_;
+    std::mutex streams_mutex_;
+
     // The stream id to the stream pointer.
     std::unordered_map<uint64_t , std::shared_ptr<AsioStream>> streams_;
+
+    // The queue that queues the request closure.
+    StdLockedQueue<DousiRequest> request_queue_;
+
+    StdLockedQueue<DousiResponse> response_queue_;
+
+    // The thread pool that fetch the requests and perform them, then push the result to the response queue.
+    std::vector<std::thread> thread_pool_;
+
+    std::unique_ptr<std::thread> write_thread_;
 };
 
 }
