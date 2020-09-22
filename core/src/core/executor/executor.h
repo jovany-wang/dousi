@@ -146,7 +146,7 @@ public:
                 );
     }
 
-    void InvokeMethod(uint64_t stream_id, uint32_t object_id, const std::string &data, std::string &result) {
+    void InvokeMethod(uint64_t stream_id, uint32_t object_id, const std::string &data) {
         msgpack::unpacked unpacked;
         msgpack::unpack(unpacked, data.data(), data.size());
         auto tuple = unpacked.get().as<std::tuple<std::string>>();

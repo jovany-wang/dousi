@@ -11,7 +11,7 @@ namespace dousi {
 class AsioStream : public std::enable_shared_from_this<AsioStream> {
 public:
     using InvocationCallbackType = std::function<
-            void (uint64_t stream_id, uint32_t object_id, const std::string &data, std::string &result)>;
+            void (uint64_t stream_id, uint32_t object_id, const std::string &data)>;
 
     /**
      * The constructor of AsioStream.
