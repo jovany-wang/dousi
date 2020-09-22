@@ -84,29 +84,18 @@ struct InvokeHelper<void> {
 class Executor : public std::enable_shared_from_this<Executor> {
 public:
     Executor() : io_service_(), work_(io_service_) {
-        const static auto thread_num = std::thread::hardware_concurrency();
+//        const static auto thread_num = std::thread::hardware_concurrency();
+        const static auto thread_num = 4;
         for (int i = 0; i < thread_num; ++i) {
             std::thread th {[this]() { this->LoopToPerformRequest(); }};
             thread_pool_.emplace_back(std::move(th));
         }
 
-        write_thread_ = std::make_unique<std::thread>([this]() {
-            while (true) {
-                DousiResponse response;
-                response_queue_.WaitAndPop(&response);
-
-                std::shared_ptr<AsioStream> stream;
-                {
-                    std::lock_guard<std::mutex> lock{streams_mutex_};
-                    auto it = streams_.find(response.stream_id_);
-                    assert(it != streams_.end());
-                    stream = it->second;
-                }
-                // Note that this result is already serialized since we should know the ReturnType of it.
-                stream->Write(response.object_id_, response.result_);
-                DOUSI_LOG(INFO) << "Method invoked, result is \"" << response.result_ << "\".";
-            }
-        });
+        const static auto write_thread_num = 4;
+        for (int i = 0; i < write_thread_num; ++i) {
+            std::thread th { [this]() { this->LoopToWriteResponse(); }};
+            write_thread_pool_.emplace_back(std::move(th));
+        }
     }
 
     ~Executor() {
@@ -114,7 +103,9 @@ public:
         for (auto &th : thread_pool_) {
             th.join();
         }
-        write_thread_->join();
+        for (auto &th : write_thread_pool_) {
+            th.join();
+        }
     }
 
     void Init(const std::string &listening_address) {
@@ -189,6 +180,24 @@ private:
         }
     }
 
+    void LoopToWriteResponse() {
+        while (true) {
+            DousiResponse response;
+            response_queue_.WaitAndPop(&response);
+
+            std::shared_ptr<AsioStream> stream;
+            {
+                std::lock_guard<std::mutex> lock {streams_mutex_};
+                auto it = streams_.find(response.stream_id_);
+                assert(it != streams_.end());
+                stream = it->second;
+            }
+            // Note that this result is already serialized since we should know the ReturnType of it.
+            stream->Write(response.object_id_, response.result_);
+            DOUSI_LOG(INFO) << "Method invoked, result is \"" << response.result_ << "\".";
+        }
+    }
+
 private:
     std::atomic<uint64_t> curr_stream_id_ =  0;
 
@@ -226,7 +235,9 @@ private:
     // The thread pool that fetch the requests and perform them, then push the result to the response queue.
     std::vector<std::thread> thread_pool_;
 
-    std::unique_ptr<std::thread> write_thread_;
+    std::vector<std::thread> write_thread_pool_;
+
+    std::vector<std::thread> read_thread_pool_;
 };
 
 }

@@ -12,6 +12,7 @@ void MasterClient::RegisterService(const std::string &service_name,
     auto future = master_service_handle_->Call(
             dousi::Remote(&MasterService::RegisterService),
             service_name, service_address);
+    future.Get();
     // TODO(qwang): Rename to AsyncXXX and add callback on this.
 }
 
