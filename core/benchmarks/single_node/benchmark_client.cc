@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 
     while(true) {
         bm_service.Call(dousi::Remote(&BenchmarkService::Echo), "hello world.");
-        std::this_thread::sleep_for(std::chrono::microseconds(2));
+        std::this_thread::sleep_for(std::chrono::microseconds(50));
     }
 
     return 0;

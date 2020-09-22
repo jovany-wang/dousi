@@ -93,4 +93,8 @@ ADD_EXECUTABLE(benchmark_client_single_node benchmarks/single_node/benchmark_cli
 ADD_DEPENDENCIES(benchmark_client_single_node dousi_common_lib dousi_submitter_lib)
 TARGET_LINK_LIBRARIES(benchmark_client_single_node dousi_common_lib dousi_submitter_lib pthread)
 
+ADD_EXECUTABLE(benchmark_mutil_thread_client benchmarks/single_node/benchmark_multi_threads_client.cc)
+ADD_DEPENDENCIES(benchmark_mutil_thread_client dousi_common_lib dousi_submitter_lib)
+TARGET_LINK_LIBRARIES(benchmark_mutil_thread_client dousi_common_lib dousi_submitter_lib pthread)
+
 ###################### Dousi Benchmarks #######################
