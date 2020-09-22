@@ -8,7 +8,7 @@
 #include <thread>
 
 int main(int argc, char *argv[]) {
-    int thread_num = 12;
+    int thread_num = 8;
     int call_interval_ms = 50;
 
     std::vector<std::thread> threads;

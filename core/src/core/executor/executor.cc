@@ -21,7 +21,10 @@ void Executor::DoAccept() {
                     });
             std::lock_guard<std::mutex> lock {streams_mutex_};
             streams_[stream_id] = asio_stream;
-            asio_stream->Start();
+
+            std::thread read_thread {[asio_stream]() { asio_stream->Start(); }};
+            read_thread_pool_.emplace_back(std::move(read_thread));
+
         }
         DoAccept();
     });
