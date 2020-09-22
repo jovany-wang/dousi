@@ -34,11 +34,11 @@ struct InvokeHelper {
     static void Invoke(
             const MethodType &method,
             DousiService<ServiceOriginalType> *service_instance,
-            const char *data,
-            size_t size,
+            const std::shared_ptr<char> &buffer_ptr,
+            size_t buffer_size,
             std::string &result) {
         msgpack::unpacked unpacked;
-        msgpack::unpack(unpacked, data, size);
+        msgpack::unpack(unpacked, buffer_ptr.get(), buffer_size);
         using MethodNameWithArgsTupleTypes = typename FunctionTraits<MethodType>::MethodNameWithArgsTuple;
         auto method_name_and_args_tuple = unpacked.get().as<MethodNameWithArgsTupleTypes>();
 
@@ -52,7 +52,7 @@ struct InvokeHelper {
         msgpack::pack(buffer, ret);
         result = {buffer.data(), buffer.size()};
 
-        DOUSI_LOG(INFO) << "Invoke the user method: " << std::string(data, size);
+//        DOUSI_LOG(INFO) << "Invoke the user method: " << std::string(data, size);
     }
 };
 
@@ -63,18 +63,18 @@ struct InvokeHelper<void> {
     static void Invoke(
             const MethodType &method,
             DousiService<ServiceOriginalType> *service_instance,
-            const char *data,
-            size_t size,
+            const std::shared_ptr<char> &buffer_ptr,
+            size_t buffer_size,
             std::string &result) {
         msgpack::unpacked unpacked;
-        msgpack::unpack(unpacked, data, size);
+        msgpack::unpack(unpacked, buffer_ptr.get(), buffer_size);
         using MethodNameWithArgsTupleTypes = typename FunctionTraits<MethodType>::MethodNameWithArgsTuple;
         auto method_name_and_args_tuple = unpacked.get().as<MethodNameWithArgsTupleTypes>();
 
         TraitAndCallVoidReturn(method, service_instance->GetServiceObjectRef(), method_name_and_args_tuple);
 //            using ReturnType = typename FunctionTraits<MethodType>::ReturnType;
         DOUSI_LOG(INFO) << "The type of the result is void.";
-        DOUSI_LOG(INFO) << "Invoke the user method: " << std::string(data, size);
+//        DOUSI_LOG(INFO) << "Invoke the user method: " << std::string(buffer_ptr.get(), buffer_size);
     }
 };
 
@@ -85,7 +85,7 @@ class Executor : public std::enable_shared_from_this<Executor> {
 public:
     Executor() : io_service_(), work_(io_service_) {
 //        const static auto thread_num = std::thread::hardware_concurrency();
-        const static auto thread_num = 4;
+        const static auto thread_num = 8;
         for (int i = 0; i < thread_num; ++i) {
             std::thread th {[this]() { this->LoopToPerformRequest(); }};
             thread_pool_.emplace_back(std::move(th));
@@ -146,13 +146,13 @@ public:
                 );
     }
 
-    void InvokeMethod(uint64_t stream_id, uint32_t object_id, const std::string &data) {
+    void InvokeMethod(uint64_t stream_id, uint32_t object_id, const std::shared_ptr<char> &buffer_ptr, const size_t &buffer_size) {
         msgpack::unpacked unpacked;
-        msgpack::unpack(unpacked, data.data(), data.size());
+        msgpack::unpack(unpacked, buffer_ptr.get(), buffer_size);
         auto tuple = unpacked.get().as<std::tuple<std::string>>();
         const auto method_name = std::get<0>(tuple);
 
-        request_queue_.Push(DousiRequest {object_id, stream_id, data, method_name});
+        request_queue_.Push(DousiRequest {object_id, stream_id, buffer_ptr, buffer_size, method_name});
     }
 
     uint64_t RequestStreamID() {
@@ -167,7 +167,7 @@ private:
             DousiRequest request;
             request_queue_.WaitAndPop(&request);
 
-            std::function<void(const char *, size_t, std::string &)> method;
+            std::function<void(const std::shared_ptr<char>&, const size_t buffer_size, std::string &)> method;
             std::string return_value_str;
             {
                 // perform request.
@@ -175,7 +175,7 @@ private:
                 // TODO(qwang): This can be refined by concurrent hash map.
                 method = registered_methods_[request.method_name_];
             }
-            method(request.data_.data(), request.data_.size(), return_value_str);
+            method(request.buffer_ptr_, request.buffer_size_, return_value_str);
             response_queue_.Push(DousiResponse {request.object_id_, request.stream_id_, return_value_str});
         }
     }
@@ -208,7 +208,7 @@ private:
     // The mutex that
     std::mutex mutex_;
 
-    std::unordered_map<std::string, std::function<void(const char *, size_t, std::string &)>> registered_methods_;
+    std::unordered_map<std::string, std::function<void(const std::shared_ptr<char>&, const size_t buffer_size, std::string &)>> registered_methods_;
 
     boost::asio::io_service io_service_;
 

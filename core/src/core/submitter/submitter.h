@@ -88,9 +88,9 @@ private:
                 /*unused*/0,
                 std::move(socket),
                 // TODO(qwang): This invocation_callback should be refined as a non-param lambda.
-                /*invocation_callback=*/[this](uint64_t stream_id, uint32_t object_id, const std::string &data) {
+                /*invocation_callback=*/[this](uint64_t stream_id, uint32_t object_id, const std::shared_ptr<char> &buffer_ptr, const size_t buffer_size) {
                     // TODO(qwang): This deserialized should be refined as a separated io thread.
-                    cached_objects_[object_id] = data;
+                    cached_objects_[object_id] = std::string(buffer_ptr.get(), buffer_size);
                 });
         DOUSI_LOG(DEBUG) << "Succeeded to connect to server.";
 
