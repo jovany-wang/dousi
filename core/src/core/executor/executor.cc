@@ -19,6 +19,7 @@ void Executor::DoAccept() {
                         InvokeMethod(stream_id, object_id, data, result);
 
                     });
+            std::lock_guard<std::mutex> lock {streams_mutex_};
             streams_[stream_id] = asio_stream;
             asio_stream->Start();
         }
