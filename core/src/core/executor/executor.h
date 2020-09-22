@@ -85,13 +85,13 @@ class Executor : public std::enable_shared_from_this<Executor> {
 public:
     Executor() : io_service_(), work_(io_service_) {
 //        const static auto thread_num = std::thread::hardware_concurrency();
-        const static auto thread_num = 1;
-        for (int i = 0; i < thread_num; ++i) {
-            std::thread th {[this]() { this->LoopToPerformRequest(); }};
-            thread_pool_.emplace_back(std::move(th));
-        }
+//        const static auto thread_num = 1;
+//        for (int i = 0; i < thread_num; ++i) {
+//            std::thread th {[this]() { this->LoopToPerformRequest(); }};
+//            thread_pool_.emplace_back(std::move(th));
+//        }
 
-        const static auto write_thread_num = 4;
+        const static auto write_thread_num = 8;
         for (int i = 0; i < write_thread_num; ++i) {
             std::thread th { [this]() { this->LoopToWriteResponse(); }};
             write_thread_pool_.emplace_back(std::move(th));
@@ -108,9 +108,9 @@ public:
 
     ~Executor() {
         DOUSI_LOG(DEBUG) << "Joining thread pool.";
-        for (auto &th : thread_pool_) {
-            th.join();
-        }
+//        for (auto &th : thread_pool_) {
+//            th.join();
+//        }
         for (auto &th : write_thread_pool_) {
             th.join();
         }
@@ -160,7 +160,8 @@ public:
         auto tuple = unpacked.get().as<std::tuple<std::string>>();
         const auto method_name = std::get<0>(tuple);
 
-        request_queue_.Push(DousiRequest {object_id, stream_id, buffer_ptr, buffer_size, method_name});
+        PerformRequest(DousiRequest {object_id, stream_id, buffer_ptr, buffer_size, method_name});
+//        request_queue_.Push(DousiRequest {object_id, stream_id, buffer_ptr, buffer_size, method_name});
     }
 
     uint64_t RequestStreamID() {
@@ -169,23 +170,27 @@ public:
 
 private:
     void DoAccept();
+//
+//    [[noreturn]] void LoopToPerformRequest() {
+//        while (true) {
+//            DousiRequest request;
+//            request_queue_.WaitAndPop(&request);
+//
+//            PerformRequest(request);
+//        }
+//    }
 
-    [[noreturn]] void LoopToPerformRequest() {
-        while (true) {
-            DousiRequest request;
-            request_queue_.WaitAndPop(&request);
-
-            std::function<void(const std::shared_ptr<char>&, const size_t buffer_size, std::string &)> method;
-            std::string return_value_str;
-            {
-                // perform request.
-                std::lock_guard<std::mutex> lock {mutex_};
-                // TODO(qwang): This can be refined by concurrent hash map.
-                method = registered_methods_[request.method_name_];
-            }
-            method(request.buffer_ptr_, request.buffer_size_, return_value_str);
-            response_queue_.Push(DousiResponse {request.object_id_, request.stream_id_, return_value_str});
+    void PerformRequest(const DousiRequest &request) {
+        std::function<void(const std::shared_ptr<char>&, const size_t buffer_size, std::string &)> method;
+        std::string return_value_str;
+        {
+            // perform request.
+            std::lock_guard<std::mutex> lock {mutex_};
+            // TODO(qwang): This can be refined by concurrent hash map.
+            method = registered_methods_[request.method_name_];
         }
+        method(request.buffer_ptr_, request.buffer_size_, return_value_str);
+        response_queue_.Push(DousiResponse {request.object_id_, request.stream_id_, return_value_str});
     }
 
     void LoopToWriteResponse() {
@@ -241,7 +246,7 @@ private:
     StdLockedQueue<DousiResponse> response_queue_;
 
     // The thread pool that fetch the requests and perform them, then push the result to the response queue.
-    std::vector<std::thread> thread_pool_;
+//    std::vector<std::thread> thread_pool_;
 
     std::vector<std::thread> write_thread_pool_;
 

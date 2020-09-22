@@ -10,7 +10,7 @@ class RpcServer {
 public:
    explicit RpcServer(const std::string &listening_address) {
        dousi::DousiLog::StartDousiLog("/tmp/dousi/rpcserver.log",
-                                      dousi::LOG_LEVEL::FATAL, 10, 3);
+                                      dousi::LOG_LEVEL::WARNING, 10, 3);
        executor_->Init(listening_address);
    }
 
