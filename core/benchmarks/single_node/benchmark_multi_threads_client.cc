@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
                 bm_service.Call(dousi::Remote(&BenchmarkService::Echo), "hello world.");
                 std::this_thread::sleep_for(std::chrono::microseconds(call_interval_ms));
             }
-            std::cout << "---Finished th id = " << std::this_thread::get_id() << std::endl;
+            std::cout << "Finished th id = " << std::this_thread::get_id() << std::endl;
             int a;
             std::cin >> a;
         });
