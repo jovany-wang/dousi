@@ -10,7 +10,7 @@
 
 int main(int argc, char *argv[]) {
     int thread_num = 12;
-    int call_interval_ms = 2;
+    int call_interval_ms = 50;
 
     std::vector<std::thread> threads;
     for (int i = 0; i < thread_num; ++i) {

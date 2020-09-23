@@ -6,8 +6,6 @@
 namespace dousi {
 
 void Executor::DoAccept() {
-//    std::shared_ptr<boost::asio::io_service> io_service_for_stream = std::make_shared<boost::asio::io_service>();
-//    auto *work = new boost::asio::io_service::work  {*io_service_for_stream};
     std::shared_ptr<asio_tcp::socket> socket = std::make_shared<asio_tcp::socket>(*io_thread_pool_.GetNextIOService());
     acceptor_->async_accept(*socket, [this, socket](boost::system::error_code error_code) {
         if (!error_code) {
