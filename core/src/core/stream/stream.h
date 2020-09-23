@@ -28,7 +28,7 @@ public:
     }
 
     void Start() {
-        boost::asio::post([this]() {this->DoReadObjectID(); });
+        DoReadObjectID();
     }
 
     void Write(uint32_t object_id, const std::string &data);

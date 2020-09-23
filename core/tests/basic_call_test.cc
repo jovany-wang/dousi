@@ -24,7 +24,6 @@ TEST(BasicCallTest, TestEchoer) {
 
         const auto sub = calculator.Call(dousi::Remote(&Calculator::sub), 30, 10).Get();
         ASSERT_EQ(20, *sub);
-
     }
     {
         // Test void return
