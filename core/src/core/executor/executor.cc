@@ -6,10 +6,10 @@
 namespace dousi {
 
 void Executor::DoAccept() {
-    std::shared_ptr<boost::asio::io_service> io_service_for_stream = std::make_shared<boost::asio::io_service>();
-    auto *work = new boost::asio::io_service::work  {*io_service_for_stream};
-    std::shared_ptr<asio_tcp::socket> socket = std::make_shared<asio_tcp::socket>(*io_service_for_stream);
-    acceptor_->async_accept(*socket, [this, work, io_service_for_stream, socket](boost::system::error_code error_code) {
+//    std::shared_ptr<boost::asio::io_service> io_service_for_stream = std::make_shared<boost::asio::io_service>();
+//    auto *work = new boost::asio::io_service::work  {*io_service_for_stream};
+    std::shared_ptr<asio_tcp::socket> socket = std::make_shared<asio_tcp::socket>(*io_thread_pool_.GetNextIOService());
+    acceptor_->async_accept(*socket, [this, socket](boost::system::error_code error_code) {
         if (!error_code) {
             DOUSI_LOG(INFO) << "Succeed to accepted a connection.";
             uint64_t stream_id = this->RequestStreamID();
@@ -24,12 +24,7 @@ void Executor::DoAccept() {
                     });
             std::lock_guard<std::mutex> lock {streams_mutex_};
             streams_[stream_id] = asio_stream;
-
-            std::thread read_thread {[work, asio_stream, io_service_for_stream]() {
-                asio_stream->Start();
-                io_service_for_stream->run();
-            }};
-            read_thread_pool_.emplace_back(std::move(read_thread));
+            asio_stream->Start();
 
         }
         DoAccept();

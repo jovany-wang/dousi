@@ -10,6 +10,7 @@
 
 #include <nameof/nameof.hpp>
 
+#include "core/executor/io_thread_pool.h"
 #include "core/common/boost_lock_free_queue.h"
 #include "core/common/options.h"
 #include "common/noncopyable.h"
@@ -30,7 +31,11 @@ namespace dousi {
  */
 class Executor : public std::enable_shared_from_this<Executor> {
 public:
-    Executor() : io_service_(), work_(io_service_), executor_options_() {
+    Executor()
+            : io_service_(),
+            work_(io_service_),
+            executor_options_(),
+            io_thread_pool_(executor_options_.io_thread_num_) {
         if (executor_options_.work_thread_num_ > 0) {
             for (int i = 0; i < executor_options_.work_thread_num_; ++i) {
                 std::thread th {[this]() { this->LoopToPerformRequest(); }};
@@ -115,6 +120,8 @@ private:
     void LoopToWriteResponse();
 
 private:
+    ExecutorOptions executor_options_;
+
     std::atomic<uint64_t> curr_stream_id_ =  0;
 
     // Whether this is unused? If so, remove AbstractService.
@@ -151,11 +158,9 @@ private:
 
     std::vector<std::thread> write_thread_pool_;
 
-    std::vector<std::thread> read_thread_pool_;
+    IOThreadPool io_thread_pool_;
 
     std::unique_ptr<std::thread> monitor_th_;
-
-    ExecutorOptions executor_options_;
 };
 
 }
