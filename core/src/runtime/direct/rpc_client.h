@@ -12,7 +12,7 @@ class RpcClient {
 public:
     RpcClient(const std::string &server_address) {
         dousi::DousiLog::StartDousiLog("/tmp/dousi/rpclient.log",
-                                       dousi::LOG_LEVEL::FATAL, 10, 3);
+                                       dousi::LOG_LEVEL::WARNING, 10, 3);
         submitter_->Init(server_address);
     }
 

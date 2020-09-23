@@ -88,7 +88,7 @@ void AsioStream::Write(uint32_t object_id, const std::string &data) {
             [self, object_id_ptr, header_ptr, data_ptr, this](boost::system::error_code error_code, size_t) {
                 if (error_code) {
                     socket_.close();
-                    DOUSI_LOG(INFO) << "Failed to write message to peer with error code:" << error_code;
+                    DOUSI_LOG(INFO) << "Failed to write message to peer with error code:" << error_code.message();
                 } else {
                     DOUSI_LOG(DEBUG) << "Succeeded to write a message to peer, header=" << *header_ptr;
                 }
