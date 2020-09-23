@@ -9,8 +9,8 @@
 #include <thread>
 
 int main(int argc, char *argv[]) {
-    int thread_num = 8;
-    int call_interval_ms = 50;
+    int thread_num = 12;
+    int call_interval_ms = 2;
 
     std::vector<std::thread> threads;
     for (int i = 0; i < thread_num; ++i) {
@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
             dousi::RpcClient rpc_client {"127.0.0.1:10002"};
             auto bm_service = rpc_client.GetService("BenchmarkService");
             int i = 0;
-            while(i++ < 300000) {
+            while(true) {
                 bm_service.Call(dousi::Remote(&BenchmarkService::Echo), "hello world.");
                 std::this_thread::sleep_for(std::chrono::microseconds(call_interval_ms));
             }

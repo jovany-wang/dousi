@@ -38,7 +38,7 @@ public:
             }
         }
 
-        const static auto write_thread_num = 4;
+        const static auto write_thread_num = 8;
         for (int i = 0; i < write_thread_num; ++i) {
             std::thread th { [this]() { this->LoopToWriteResponse(); }};
             write_thread_pool_.emplace_back(std::move(th));

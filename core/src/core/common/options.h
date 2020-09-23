@@ -6,7 +6,7 @@
 namespace dousi {
 
 struct ExecutorOptions final {
-    uint16_t work_thread_num_ = 0;
+    uint16_t work_thread_num_ = 4;
 };
 
 }
