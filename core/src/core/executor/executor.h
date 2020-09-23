@@ -10,6 +10,7 @@
 
 #include <nameof/nameof.hpp>
 
+#include "core/common/boost_lock_free_queue.h"
 #include "core/common/options.h"
 #include "common/noncopyable.h"
 #include "core/executor/dousi_request.h"
@@ -141,9 +142,9 @@ private:
     std::unordered_map<uint64_t , std::shared_ptr<AsioStream>> streams_;
 
     // The queue that queues the request closure.
-    StdLockedQueue<DousiRequest> request_queue_;
+    BoostLockFreeQueue<DousiRequest*> request_queue_;
 
-    StdLockedQueue<DousiResponse> response_queue_;
+    BoostLockFreeQueue<DousiResponse*> response_queue_;
 
     // The thread pool that fetch the requests and perform them, then push the result to the response queue.
     std::vector<std::thread> work_thread_pool_;
