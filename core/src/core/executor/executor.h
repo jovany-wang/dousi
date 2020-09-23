@@ -28,57 +28,6 @@ namespace dousi {
 template <typename ServiceType>
 class DousiService;
 
-template<typename ReturnType>
-struct InvokeHelper {
-    // This could be refined as a lambda.
-    template<typename MethodType, typename ServiceOriginalType>
-    static void Invoke(
-            const MethodType &method,
-            DousiService<ServiceOriginalType> *service_instance,
-            const std::shared_ptr<char> &buffer_ptr,
-            size_t buffer_size,
-            std::string &result) {
-        msgpack::unpacked unpacked;
-        msgpack::unpack(unpacked, buffer_ptr.get(), buffer_size);
-        using MethodNameWithArgsTupleTypes = typename FunctionTraits<MethodType>::MethodNameWithArgsTuple;
-        auto method_name_and_args_tuple = unpacked.get().as<MethodNameWithArgsTupleTypes>();
-
-        auto ret = TraitAndCall(method, service_instance->GetServiceObjectRef(), method_name_and_args_tuple);
-//            using ReturnType = typename FunctionTraits<MethodType>::ReturnType;
-// TODO(qwang):
-//        DOUSI_LOG(INFO) << "The type of the result is " << NAMEOF_TYPE(ReturnType) << ", and the result = " << ret;
-
-        // Serialize result.
-        msgpack::sbuffer buffer(1024);
-        msgpack::pack(buffer, ret);
-        result = {buffer.data(), buffer.size()};
-
-//        DOUSI_LOG(INFO) << "Invoke the user method: " << std::string(data, size);
-    }
-};
-
-template<>
-struct InvokeHelper<void> {
-    // This could be refined as a lambda.
-    template<typename MethodType, typename ServiceOriginalType>
-    static void Invoke(
-            const MethodType &method,
-            DousiService<ServiceOriginalType> *service_instance,
-            const std::shared_ptr<char> &buffer_ptr,
-            size_t buffer_size,
-            std::string &result) {
-        msgpack::unpacked unpacked;
-        msgpack::unpack(unpacked, buffer_ptr.get(), buffer_size);
-        using MethodNameWithArgsTupleTypes = typename FunctionTraits<MethodType>::MethodNameWithArgsTuple;
-        auto method_name_and_args_tuple = unpacked.get().as<MethodNameWithArgsTupleTypes>();
-
-        TraitAndCallVoidReturn(method, service_instance->GetServiceObjectRef(), method_name_and_args_tuple);
-//            using ReturnType = typename FunctionTraits<MethodType>::ReturnType;
-        DOUSI_LOG(INFO) << "The type of the result is void.";
-//        DOUSI_LOG(INFO) << "Invoke the user method: " << std::string(buffer_ptr.get(), buffer_size);
-    }
-};
-
 /**
  * A singleton executor runtime of dousi.
  */
@@ -118,7 +67,6 @@ public:
     }
 
     void Init(const std::string &listening_address) {
-        this->listening_address_ = listening_address;
         acceptor_ = std::make_unique<boost::asio::ip::tcp::acceptor>(
                 io_service_, Endpoint(listening_address).GetTcpEndpoint());
     }
@@ -155,19 +103,7 @@ public:
                 );
     }
 
-    void InvokeMethod(uint64_t stream_id, uint32_t object_id, const std::shared_ptr<char> &buffer_ptr, const size_t &buffer_size) {
-        msgpack::unpacked unpacked;
-        msgpack::unpack(unpacked, buffer_ptr.get(), buffer_size);
-        auto tuple = unpacked.get().as<std::tuple<std::string>>();
-        const auto method_name = std::get<0>(tuple);
-
-        // If there has work thread pool, post the request to request queue.
-        if (executor_options_.work_thread_num_ > 0) {
-            request_queue_.Push(DousiRequest {object_id, stream_id, buffer_ptr, buffer_size, method_name});
-        } else {
-            PerformRequest(DousiRequest {object_id, stream_id, buffer_ptr, buffer_size, method_name});
-        }
-    }
+    void InvokeMethod(uint64_t stream_id, uint32_t object_id, const std::shared_ptr<char> &buffer_ptr, const size_t &buffer_size);
 
     uint64_t RequestStreamID() {
         return curr_stream_id_.fetch_add(1, std::memory_order_relaxed);
@@ -176,44 +112,11 @@ public:
 private:
     void DoAccept();
 
-    [[noreturn]] void LoopToPerformRequest() {
-        while (true) {
-            DousiRequest request;
-            request_queue_.WaitAndPop(&request);
-            PerformRequest(request);
-        }
-    }
+    void LoopToPerformRequest();
 
-    void PerformRequest(const DousiRequest &request) {
-        std::function<void(const std::shared_ptr<char>&, const size_t buffer_size, std::string &)> method;
-        std::string return_value_str;
-        {
-            // perform request.
-            std::lock_guard<std::mutex> lock {mutex_};
-            // TODO(qwang): This can be refined by concurrent hash map.
-            method = registered_methods_[request.method_name_];
-        }
-        method(request.buffer_ptr_, request.buffer_size_, return_value_str);
-        response_queue_.Push(DousiResponse {request.object_id_, request.stream_id_, return_value_str});
-    }
+    void PerformRequest(const DousiRequest &request);
 
-    void LoopToWriteResponse() {
-        while (true) {
-            DousiResponse response;
-            response_queue_.WaitAndPop(&response);
-
-            std::shared_ptr<AsioStream> stream;
-            {
-                std::lock_guard<std::mutex> lock {streams_mutex_};
-                auto it = streams_.find(response.stream_id_);
-                assert(it != streams_.end());
-                stream = it->second;
-            }
-            // Note that this result is already serialized since we should know the ReturnType of it.
-            stream->Write(response.object_id_, response.result_);
-            DOUSI_LOG(INFO) << "Method invoked, result is \"" << response.result_ << "\".";
-        }
-    }
+    void LoopToWriteResponse();
 
 private:
     std::atomic<uint64_t> curr_stream_id_ =  0;
@@ -222,7 +125,7 @@ private:
     std::unordered_map<std::string, std::shared_ptr<AbstractService>> created_services_;
 
     // TODO(qwang): This can be refined as WRLock.
-    // The mutex that
+    // The mutex that protects registered_methods_.
     std::mutex mutex_;
 
     std::unordered_map<std::string, std::function<void(const std::shared_ptr<char>&, const size_t buffer_size, std::string &)>> registered_methods_;
@@ -230,9 +133,6 @@ private:
     boost::asio::io_service io_service_;
 
     boost::asio::io_service::work work_;
-
-    // The listening address that this RPC server listening on.
-    std::string listening_address_;
 
     // acceptor
     std::unique_ptr<boost::asio::ip::tcp::acceptor> acceptor_ = nullptr;
