@@ -24,6 +24,10 @@ struct DousiRequest {
         return *this;
     }
 
+//    ~DousiRequest() {
+//
+//    }
+
     uint32_t object_id_;
     uint64_t stream_id_;
     std::shared_ptr<msgpack::unpacked> unpacked_;

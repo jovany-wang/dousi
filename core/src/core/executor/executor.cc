@@ -32,19 +32,20 @@ void Executor::DoAccept() {
 
 void Executor::LoopToWriteResponse() {
     while (true) {
-        DousiResponse response;
+        DousiResponse *response = nullptr;
         response_queue_.WaitAndPop(&response);
 
         std::shared_ptr<AsioStream> stream;
         {
             std::lock_guard<std::mutex> lock {streams_mutex_};
-            auto it = streams_.find(response.stream_id_);
+            auto it = streams_.find(response->stream_id_);
             assert(it != streams_.end());
             stream = it->second;
         }
         // Note that this result is already serialized since we should know the ReturnType of it.
-        stream->Write(response.object_id_, response.result_);
-        DOUSI_LOG(INFO) << "Method invoked, result is \"" << response.result_ << "\".";
+        stream->Write(response->object_id_, response->result_);
+        DOUSI_LOG(INFO) << "Method invoked, result is \"" << response->result_ << "\".";
+        delete response;
     }
 }
 
@@ -58,14 +59,15 @@ void Executor::PerformRequest(const DousiRequest &request) {
         method = registered_methods_[request.method_name_];
     }
     method(request.unpacked_, return_value_str);
-    response_queue_.Push(DousiResponse {request.object_id_, request.stream_id_, return_value_str});
+    response_queue_.Push(new DousiResponse {request.object_id_, request.stream_id_, return_value_str});
 }
 
 void Executor::LoopToPerformRequest() {
     while (true) {
-        DousiRequest request;
+        DousiRequest *request = nullptr;
         request_queue_.WaitAndPop(&request);
-        PerformRequest(request);
+        PerformRequest(*request);
+        delete request;
     }
 }
 
@@ -77,7 +79,7 @@ void Executor::InvokeMethod(uint64_t stream_id, uint32_t object_id, const std::s
 
     // If there has work thread pool, post the request to request queue.
     if (executor_options_.work_thread_num_ > 0) {
-        request_queue_.Push(DousiRequest {object_id, stream_id, std::move(unpacked), method_name});
+        request_queue_.Push(new DousiRequest {object_id, stream_id, std::move(unpacked), method_name});
     } else {
         PerformRequest(DousiRequest {object_id, stream_id, std::move(unpacked), method_name});
     }

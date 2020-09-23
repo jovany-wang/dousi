@@ -26,7 +26,9 @@ public:
     ~Submitter() {
 //        stream_.Close();
         io_service_.stop();
-        io_service_thread_->join();
+        if (io_service_thread_ != nullptr) {
+            io_service_thread_->join();
+        }
     }
 
     Submitter()
