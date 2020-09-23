@@ -24,10 +24,6 @@
 
 namespace dousi {
 
-
-template <typename ServiceType>
-class DousiService;
-
 /**
  * A singleton executor runtime of dousi.
  */
