@@ -49,13 +49,10 @@ struct InvokeHelper {
     static void Invoke(
             const MethodType &method,
             DousiService<ServiceOriginalType> *service_instance,
-            const std::shared_ptr<char> &buffer_ptr,
-            size_t buffer_size,
+            const std::shared_ptr<msgpack::unpacked> &unpacked,
             std::string &result) {
-        msgpack::unpacked unpacked;
-        msgpack::unpack(unpacked, buffer_ptr.get(), buffer_size);
         using MethodNameWithArgsTupleTypes = typename FunctionTraits<MethodType>::MethodNameWithArgsTuple;
-        auto method_name_and_args_tuple = unpacked.get().as<MethodNameWithArgsTupleTypes>();
+        auto method_name_and_args_tuple = unpacked->get().as<MethodNameWithArgsTupleTypes>();
 
         auto ret = TraitAndCall(method, service_instance->GetServiceObjectRef(), method_name_and_args_tuple);
 
@@ -73,13 +70,10 @@ struct InvokeHelper<void> {
     static void Invoke(
             const MethodType &method,
             DousiService<ServiceOriginalType> *service_instance,
-            const std::shared_ptr<char> &buffer_ptr,
-            size_t buffer_size,
+            const std::shared_ptr<msgpack::unpacked> &unpacked,
             std::string &result) {
-        msgpack::unpacked unpacked;
-        msgpack::unpack(unpacked, buffer_ptr.get(), buffer_size);
         using MethodNameWithArgsTupleTypes = typename FunctionTraits<MethodType>::MethodNameWithArgsTuple;
-        auto method_name_and_args_tuple = unpacked.get().as<MethodNameWithArgsTupleTypes>();
+        auto method_name_and_args_tuple = unpacked->get().as<MethodNameWithArgsTupleTypes>();
 
         TraitAndCallVoidReturn(method, service_instance->GetServiceObjectRef(), method_name_and_args_tuple);
         DOUSI_LOG(INFO) << "The type of the result is void.";

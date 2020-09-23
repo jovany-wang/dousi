@@ -49,7 +49,7 @@ void Executor::LoopToWriteResponse() {
 }
 
 void Executor::PerformRequest(const DousiRequest &request) {
-    std::function<void(const std::shared_ptr<char>&, const size_t buffer_size, std::string &)> method;
+    std::function<void(const std::shared_ptr<msgpack::unpacked> &unpacked, std::string &)> method;
     std::string return_value_str;
     {
         // perform request.
@@ -57,7 +57,7 @@ void Executor::PerformRequest(const DousiRequest &request) {
         // TODO(qwang): This can be refined by concurrent hash map.
         method = registered_methods_[request.method_name_];
     }
-    method(request.buffer_ptr_, request.buffer_size_, return_value_str);
+    method(request.unpacked_, return_value_str);
     response_queue_.Push(DousiResponse {request.object_id_, request.stream_id_, return_value_str});
 }
 
@@ -70,16 +70,16 @@ void Executor::LoopToPerformRequest() {
 }
 
 void Executor::InvokeMethod(uint64_t stream_id, uint32_t object_id, const std::shared_ptr<char> &buffer_ptr, const size_t &buffer_size) {
-    msgpack::unpacked unpacked;
-    msgpack::unpack(unpacked, buffer_ptr.get(), buffer_size);
-    auto tuple = unpacked.get().as<std::tuple<std::string>>();
+    std::shared_ptr<msgpack::unpacked> unpacked = std::make_shared<msgpack::unpacked>();
+    msgpack::unpack(*unpacked, buffer_ptr.get(), buffer_size);
+    auto tuple = unpacked->get().as<std::tuple<std::string>>();
     const auto method_name = std::get<0>(tuple);
 
     // If there has work thread pool, post the request to request queue.
     if (executor_options_.work_thread_num_ > 0) {
-        request_queue_.Push(DousiRequest {object_id, stream_id, buffer_ptr, buffer_size, method_name});
+        request_queue_.Push(DousiRequest {object_id, stream_id, std::move(unpacked), method_name});
     } else {
-        PerformRequest(DousiRequest {object_id, stream_id, buffer_ptr, buffer_size, method_name});
+        PerformRequest(DousiRequest {object_id, stream_id, std::move(unpacked), method_name});
     }
 }
 

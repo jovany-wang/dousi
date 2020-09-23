@@ -37,7 +37,7 @@ public:
             }
         }
 
-        const static auto write_thread_num = 8;
+        const static auto write_thread_num = 4;
         for (int i = 0; i < write_thread_num; ++i) {
             std::thread th { [this]() { this->LoopToWriteResponse(); }};
             write_thread_pool_.emplace_back(std::move(th));
@@ -94,8 +94,7 @@ public:
                 remote_method.GetMethod(),
                 service_instance,
                 std::placeholders::_1,
-                std::placeholders::_2,
-                std::placeholders::_3
+                std::placeholders::_2
                 );
     }
 
@@ -124,7 +123,8 @@ private:
     // The mutex that protects registered_methods_.
     std::mutex mutex_;
 
-    std::unordered_map<std::string, std::function<void(const std::shared_ptr<char>&, const size_t buffer_size, std::string &)>> registered_methods_;
+    std::unordered_map<std::string, std::function<void(
+            const std::shared_ptr<msgpack::unpacked> &unpacked , std::string &)>> registered_methods_;
 
     boost::asio::io_service io_service_;
 
