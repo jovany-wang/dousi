@@ -12,6 +12,8 @@
         <module>api</module>
         <module>runtime</module>
         <module>native</module>
+        <module>test</module>
+        <module>examples</module>
     </modules>
 
 
