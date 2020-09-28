@@ -22,11 +22,6 @@ std::unordered_map<std::string, std::string> MasterClient::GetAllEndpoints() {
     return *future.Get();
 }
 
-void MasterClient::FetchService(const std::string &service_name,
-    const std::function<void(bool ok, const std::string &address)> &callback) {
-
-}
-
 int32_t MasterClient::SyncRequestProcessId() {
     auto future = master_service_handle_->Call(dousi::Remote(&MasterService::RequestProcessorId));
     return *future.Get();

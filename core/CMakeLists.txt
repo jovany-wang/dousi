@@ -86,6 +86,8 @@ DEFINE_DOUSI_TEST(test_dousi_method_macro SRC_FILES tests/method_macro_test.cc)
 
 DEFINE_DOUSI_TEST(test_logging SRC_FILES tests/logging_test.cc LINKS dousi_common_lib)
 
+DEFINE_DOUSI_TEST(test_concurrent_queue SRC_FILES tests/concurrent_queue_test.cc LINKS dousi_common_lib)
+
 DEFINE_DOUSI_TEST(test_processor_1 SRC_FILES tests/distributed/processor1_main.cc LINKS dousi_master_server_lib dousi_master_client_lib dousi_stream_lib dousi_common_lib)
 DEFINE_DOUSI_TEST(test_processor_2 SRC_FILES tests/distributed/processor2_main.cc LINKS dousi_master_server_lib dousi_master_client_lib dousi_stream_lib dousi_common_lib)
 ###################### Dousi Tests #######################
