@@ -39,12 +39,13 @@ public:
   /// Note that thsi is a sync call.
   std::unordered_map<std::string, std::string> GetAllEndpoints();
 
+  int32_t SyncRequestProcessId();
+
   /**
    * Get the service routing from master server.
    */
   void FetchService(const std::string &service_name,
       const std::function<void(bool ok, const std::string &address)> &callback);
-
 private:
 
 

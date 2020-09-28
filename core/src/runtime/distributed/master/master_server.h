@@ -39,6 +39,7 @@ public:
       auto service = executor_->CreateService<MasterService>(/*service_name=*/"MasterService");
       service.RegisterMethod(dousi::Remote(&MasterService::RegisterService));
       service.RegisterMethod(dousi::Remote(&MasterService::GetAllEndpoints));
+      service.RegisterMethod(dousi::Remote(&MasterService::RequestProcessorId));
       executor_->Init(listening_address);
       executor_->Loop();
   }

@@ -51,6 +51,11 @@ ADD_LIBRARY(dousi_master_client_lib src/runtime/distributed/master/master_client
 ADD_DEPENDENCIES(dousi_master_client_lib dousi_submitter_lib boost_ep dousi_common_lib msgpack_ep)
 TARGET_LINK_LIBRARIES(dousi_master_client_lib dousi_submitter_lib dousi_common_lib pthread)
 
+# dousi default master server binary
+ADD_EXECUTABLE(dousi_default_master src/runtime/distributed/master/default_master_server_main.cc)
+ADD_DEPENDENCIES(dousi_default_master  dousi_master_server_lib dousi_stream_lib dousi_common_lib)
+TARGET_LINK_LIBRARIES(dousi_default_master dousi_master_server_lib dousi_stream_lib dousi_common_lib pthread)
+
 ################################## Dousi libraries ###################################
 
 # examples server binary
@@ -81,6 +86,8 @@ DEFINE_DOUSI_TEST(test_dousi_method_macro SRC_FILES tests/method_macro_test.cc)
 
 DEFINE_DOUSI_TEST(test_logging SRC_FILES tests/logging_test.cc LINKS dousi_common_lib)
 
+DEFINE_DOUSI_TEST(test_processor_1 SRC_FILES tests/distributed/processor1_main.cc LINKS dousi_master_server_lib dousi_master_client_lib dousi_stream_lib dousi_common_lib)
+DEFINE_DOUSI_TEST(test_processor_2 SRC_FILES tests/distributed/processor2_main.cc LINKS dousi_master_server_lib dousi_master_client_lib dousi_stream_lib dousi_common_lib)
 ###################### Dousi Tests #######################
 
 
