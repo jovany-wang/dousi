@@ -69,12 +69,18 @@ public:
     }
 
     void Init(const std::string &listening_address) {
+        listening_addr_ = listening_address;
         acceptor_ = std::make_unique<boost::asio::ip::tcp::acceptor>(
                 io_service_, Endpoint(listening_address).GetTcpEndpoint());
     }
 
     void Shutdown() {
         acceptor_->close();
+    }
+
+
+    std::string GetListeningAddr() const {
+        return listening_addr_;
     }
 
     void Loop() {
@@ -161,6 +167,8 @@ private:
     IOThreadPool io_thread_pool_;
 
     std::unique_ptr<std::thread> monitor_th_;
+
+    std::string listening_addr_;
 };
 
 }

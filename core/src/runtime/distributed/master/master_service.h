@@ -13,6 +13,7 @@ public:
             const std::string &service_address) {
         std::lock_guard<std::mutex> lock {endpoints_mutex_};
         endpoints_[service_name] = service_address;
+        DOUSI_LOG(DEBUG) << "Service registered [ " << service_name << ", " << service_address << " ].";
         return true;
     }
 
@@ -23,7 +24,18 @@ public:
         return endpoints_;
     }
 
+    int32_t RequestProcessorId() {
+        const auto processor_id = curr_processor_id_.fetch_add(1, std::memory_order_relaxed);
+        return processor_id;
+    }
+
+    std::string FetchService(const std::string &service_name) {
+
+    }
+
 private:
+    std::atomic<int32_t> curr_processor_id_ = 0;
+
     // The map that maps service name to its endpoint.
     // TODO(qwang): Change the 2nd parameter's type to `Endpoint`.
     std::unordered_map<std::string, std::string> endpoints_;
