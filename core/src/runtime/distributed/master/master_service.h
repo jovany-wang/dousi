@@ -29,9 +29,6 @@ public:
         return processor_id;
     }
 
-    std::string FetchService(const std::string &service_name) {
-
-    }
 
 private:
     std::atomic<int32_t> curr_processor_id_ = 0;

@@ -1,5 +1,6 @@
 # dousi
-A modern highly performance RPC framework with multiple-languages server.
+A modern multiple paradigm distributed IPC framework.
+
 
 Note that this is working on progress.
 
@@ -65,4 +66,4 @@ int main() {
 ## Multipe Advanced Models for Distributed IPC
 ### 1. Master-Slaves IPC Model
 ### 2. P2P IPC Model
-### 3. Multiple Replicates
+### 3. Multiple Replicas

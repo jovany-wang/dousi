@@ -2,6 +2,7 @@
 #define _DOUSI_COMMON_BOOST_LOCK_FREE_QUEUE_H_
 
 #include <boost/lockfree/queue.hpp>
+#include <thread>
 
 namespace dousi {
 
@@ -26,11 +27,11 @@ public:
         }
     }
 
-    virtual uint32_t GetSize() const {
+    [[nodiscard]] virtual uint32_t GetSize() const {
         return 0;
     }
 
-    virtual bool IsEmpty() const {
+    [[nodiscard]] virtual bool IsEmpty() const {
         return data_.empty();
     }
 
