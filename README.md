@@ -63,7 +63,7 @@ int main() {
 - [ ] Optimize buffer-shipping in process
 - [ ] Nested RPC call
 
-## Multipe Advanced Models for Distributed IPC
+## Multiple Advanced Models for Distributed IPC
 ### 1. Master-Slaves IPC Model
 ### 2. P2P IPC Model
 ### 3. Multiple Replicas
