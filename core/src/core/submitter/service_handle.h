@@ -32,7 +32,6 @@ public:
     }
 
 private:
-
     template<typename MethodType, typename... ArgTypes>
     auto CallWithMethodName(RemoteMethod<MethodType> method, ArgTypes... args);
 

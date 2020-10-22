@@ -19,20 +19,34 @@
 
 namespace dousi {
 
+enum class ClientLanguage {
+    CPP = 0,
+    JAVA = 1,
+};
+
 class ServiceHandle;
+
+using RpcReturnedCallback = std::function<void(uint32_t object_id,
+        const std::shared_ptr<char> &buffer_ptr, const size_t buffer_size)>;
+
 
 class Submitter : public std::enable_shared_from_this<Submitter> {
 public:
+
+    Submitter()
+        : Submitter(ClientLanguage::CPP, nullptr) {}
+
+    Submitter(ClientLanguage client_language, RpcReturnedCallback on_rpc_returned_callback)
+        : work_(io_service_),
+        client_language_(client_language),
+        on_rpc_returned_callback_(std::move(on_rpc_returned_callback)) {}
+
     ~Submitter() {
 //        stream_.Close();
         io_service_.stop();
         if (io_service_thread_ != nullptr) {
             io_service_thread_->join();
         }
-    }
-
-    Submitter()
-        : work_(io_service_) {
     }
 
     void Submit(uint64_t object_id, const std::string &method_name, const std::string &buffer) {
@@ -92,10 +106,18 @@ private:
                 // TODO(qwang): This invocation_callback should be refined as a non-param lambda.
                 /*invocation_callback=*/[this](uint64_t stream_id, uint32_t object_id, const std::shared_ptr<char> &buffer_ptr, const size_t buffer_size) {
                     // TODO(qwang): This deserialized should be refined as a separated io thread.
-                    cached_objects_[object_id] = std::string(buffer_ptr.get(), buffer_size);
+                    // TODO(qwang): This should not be written here, `Submitter` just provide a callback way
+                    // for the user to pass a callback to indicate how to handle the result received.
+
+                    if (client_language_ == ClientLanguage::JAVA) {
+                        DOUSI_CHECK(on_rpc_returned_callback_ != nullptr)
+                                << "on_rpc_returned_callback_ should not be null in Java Client.";
+                        on_rpc_returned_callback_(object_id, buffer_ptr, buffer_size);
+                    } else {
+                        cached_objects_[object_id] = std::string(buffer_ptr.get(), buffer_size);
+                    }
                 });
         DOUSI_LOG(DEBUG) << "Succeeded to connect to server.";
-
     }
 
 
@@ -121,6 +143,9 @@ private:
 
     std::shared_ptr<AsioStream> stream_ = nullptr;
 
+    ClientLanguage client_language_ = ClientLanguage::CPP;
+
+    RpcReturnedCallback  on_rpc_returned_callback_ = nullptr;
 };
 
 }
