@@ -69,9 +69,12 @@ public:
     template<typename ObjectType>
     std::shared_ptr<ObjectType> GetObject(uint64_t object_id) {
         while(true) {
-            auto it = cached_objects_.find(object_id);
-            if (it != cached_objects_.end()) {
-                break;
+            {
+                std::lock_guard<std::mutex> lock_guard{mutex_};
+                auto it = cached_objects_.find(object_id);
+                if (it != cached_objects_.end()) {
+                    break;
+                }
             }
             // TODO(qwang): This while should be refined in condition variable.
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -114,6 +117,7 @@ private:
                                 << "on_rpc_returned_callback_ should not be null in Java Client.";
                         on_rpc_returned_callback_(object_id, buffer_ptr, buffer_size);
                     } else {
+                        std::lock_guard<std::mutex> lock_guard {mutex_};
                         cached_objects_[object_id] = std::string(buffer_ptr.get(), buffer_size);
                     }
                 });
