@@ -1,4 +1,6 @@
 # dousi
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/jovany-wang/dousi/CI)
+![Github Star Number](https://badgen.net/github/stars/jovany-wang/dousi)  
 A modern multiple paradigm distributed IPC framework.
 
 
