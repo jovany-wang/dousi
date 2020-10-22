@@ -21,17 +21,10 @@ public class NativeRpcClient implements DousiRpcClient {
 
     private ConcurrentHashMap<Long, CompletableFuture<Object>> localFutureCache = new ConcurrentHashMap<>();
 
-    public NativeRpcClient() {
-        rpcClientPointer = nativeNewRpcClient();
+    public NativeRpcClient(String serverAddress) {
+        rpcClientPointer = nativeNewRpcClient(serverAddress);
     }
 
-    public void connect(String serverAddress) {
-        if (rpcClientPointer == -1) {
-            throw new RuntimeException("no init");
-        }
-        nativeConnect(rpcClientPointer, serverAddress);
-        codec = new Codec();
-    }
 
     public DousiService getService(String serviceName) {
         return new DousiServiceImpl(this, serviceName);
@@ -72,10 +65,22 @@ public class NativeRpcClient implements DousiRpcClient {
         this.rpcClientPointer = -1;
     }
 
+    /**
+     * The callback that will be invoked once the reuslt of rpc request received.
+     * Note that this method will be invoked in JNI.
+     */
+    private void onReturnValueReceived(long requestId, byte[] encodedReturnValue) throws IOException {
+//        if (requestId not is local_cache) {//error}
+        System.out.println("-----ReturnValue received.");
+        synchronized (this) {
+            final Class<?> returnClz = localFutureReturnTypenameCache.get(requestId);
+            CompletableFuture<Object> future = localFutureCache.get(requestId);
+            Object o = codec.decodeReturnValue(returnClz, encodedReturnValue);
+            future.complete(o);
+        }
+    }
 
-    private native long nativeNewRpcClient();
-
-    private native void nativeConnect(long rpcClientPointer, String serverAddress);
+    private native long nativeNewRpcClient(String serverAddress);
 
     private native long nativeInvoke(long rpcClientPointer, byte[] encodedFuncNameAndArgs);
 

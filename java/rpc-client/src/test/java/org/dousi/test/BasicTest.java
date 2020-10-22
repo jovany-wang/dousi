@@ -11,7 +11,7 @@ public class BasicTest {
 
     @Test
     public void testBasicCall() {
-        DousiRpcClient rpcClient = new NativeRpcClient();
+        DousiRpcClient rpcClient = new NativeRpcClient("127.0.0.1:10001");
         DousiService service = rpcClient.getService("Adder");
         CompletableFuture<Object> future = service.asyncFunction("add").invoke(Integer.class, 2, 3);
 
