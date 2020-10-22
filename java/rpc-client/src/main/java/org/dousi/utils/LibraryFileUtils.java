@@ -3,7 +3,6 @@ package org.dousi.utils;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.io.FileUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,8 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class LibraryFileUtils {
-
-    public static final String DOUSI_JNI_LIBRARY_NAME = "dousi_jni_client_lib";
 
     public static File getFile(String destDir, String fileName) {
         final File dir = new File(destDir);
@@ -30,10 +27,13 @@ public class LibraryFileUtils {
                 .getChannel().lock()) {
             File file = new File(String.format("%s/%s", destDir, fileName));
             if (file.exists()) {
-                return file;
+                final boolean deleted = file.delete();
+                if (!deleted) {
+                    throw new RuntimeException("Failed to delete the tmp native library file.");
+                }
             }
 
-            // File does not exist.
+            // We can make sure the file does not exist.
             try (InputStream is = LibraryFileUtils.class.getResourceAsStream("/" + fileName)) {
                 Preconditions.checkNotNull(is, "{} doesn't exist.", fileName);
                 Files.copy(is, Paths.get(file.getCanonicalPath()));
@@ -45,5 +45,4 @@ public class LibraryFileUtils {
             throw new RuntimeException(e);
         }
     }
-
 }

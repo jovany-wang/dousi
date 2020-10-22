@@ -5,7 +5,6 @@ import org.dousi.client.DousiService;
 import org.dousi.client.NativeRpcClient;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
