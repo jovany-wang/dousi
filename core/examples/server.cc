@@ -6,16 +6,15 @@
 #include "runtime/direct/rpc_server.h"
 
 int main(int argc, char *argv[]) {
-    using namespace dousi;
 
     dousi::RpcServer rpc_server {/*master_address=*/"127.0.0.1:10001"};
 
-    DousiService<Adder> adder_service = rpc_server.CreateService<Adder>();
+    dousi::DousiService<Adder> adder_service = rpc_server.CreateService<Adder>();
     auto add_rm = dousi::Remote(&Adder::add);
     adder_service.RegisterMethod(add_rm);
     adder_service.RegisterMethod(dousi::Remote(&Adder::sub));
 
-    DousiService<Echoer> echo_service = rpc_server.CreateService<Echoer>();
+    dousi::DousiService<Echoer> echo_service = rpc_server.CreateService<Echoer>();
     echo_service.RegisterMethod(dousi::Remote(&Echoer::echo));
 
     rpc_server.Loop();
