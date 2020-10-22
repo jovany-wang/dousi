@@ -28,7 +28,7 @@ public class JniUtils {
             LOGGER.debug("Loading native library {}.", libraryName);
             // Load native library.
             String fileName = System.mapLibraryName(libraryName);
-            final File file = LibraryFileUtils.getFile("/tmp/restrpc", fileName);
+            final File file = LibraryFileUtils.getFile("/tmp/dousi-java", fileName);
             System.load(file.getAbsolutePath());
             LOGGER.debug("Native library loaded.");
             resetLibraryPath(file.getAbsolutePath());

@@ -14,7 +14,7 @@ import java.nio.file.Paths;
 
 public class LibraryFileUtils {
 
-    public static final String RESTRPC_LIBRARY_NAME = "restrpc_jni";
+    public static final String DOUSI_JNI_LIBRARY_NAME = "dousi_jni_client_lib";
 
     public static File getFile(String destDir, String fileName) {
         final File dir = new File(destDir);

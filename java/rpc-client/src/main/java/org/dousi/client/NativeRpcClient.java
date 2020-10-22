@@ -9,12 +9,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NativeRpcClient implements DousiRpcClient {
 
     static {
-        JniUtils.loadLibrary("restrpc_jni");
+        JniUtils.loadLibrary("dousi_jni_client_lib");
     }
 
     private long rpcClientPointer = -1;
 
-    private Codec codec;
+    private Codec codec = new Codec();
 
     // The map to cache return type.
     private ConcurrentHashMap<Long, Class<?>> localFutureReturnTypenameCache = new ConcurrentHashMap<>();
@@ -71,7 +71,6 @@ public class NativeRpcClient implements DousiRpcClient {
      */
     private void onReturnValueReceived(long requestId, byte[] encodedReturnValue) throws IOException {
 //        if (requestId not is local_cache) {//error}
-        System.out.println("-----ReturnValue received.");
         synchronized (this) {
             final Class<?> returnClz = localFutureReturnTypenameCache.get(requestId);
             CompletableFuture<Object> future = localFutureCache.get(requestId);

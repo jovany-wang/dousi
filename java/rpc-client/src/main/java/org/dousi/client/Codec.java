@@ -55,9 +55,9 @@ public class Codec {
 
         // TODO(qwang): unpack nil.
         MessageUnpacker messageUnpacker = MessagePack.newDefaultUnpacker(encodedBytes);
-        // Unpack unnecessary fields.
-        messageUnpacker.unpackArrayHeader();
-        messageUnpacker.unpackInt();
+//        // Unpack unnecessary fields.
+//        messageUnpacker.unpackArrayHeader();
+//        messageUnpacker.unpackInt();
 
         if (Integer.class.equals(returnClz)) {
             return messageUnpacker.unpackInt();
