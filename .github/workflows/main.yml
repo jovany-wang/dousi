@@ -18,6 +18,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: build
-      run: cd core && ./build.sh
+      run: ./build.sh
     - name: run tests
-      run: cd core/build && ../run_all_tests.sh
+      run: cd build && ../cpp/run_all_tests.sh
