@@ -10,7 +10,7 @@ Note that this is working on progress.
 - Mutilpe languages servers.
 - Compiling safe both in C++ server and client.
 
-## Usage
+## Pure C++ Usage
 ### C++ Server
 ```c++
 class Calculator {
@@ -56,8 +56,14 @@ int main() {
 }
 ```
 
+## Cross-Languaged RPC
+We now supported that using a Java client to connect and invoke the C++ RPC server.  
+More information can be refered in [Java Part of Dousi](https://github.com/jovany-wang/dousi/blob/master/java/README.md)
+
+
 ## Roadmap
 - [x] Prototype of C++ implementation
+- [x] Java Async Client
 - [ ] Optimize large data transforing
 - [ ] Support mutilpe languages servers
 - [ ] Optimize buffer-shipping in process
@@ -67,3 +73,4 @@ int main() {
 ### 1. Master-Slaves IPC Model
 ### 2. P2P IPC Model
 ### 3. Multiple Replicas
+
