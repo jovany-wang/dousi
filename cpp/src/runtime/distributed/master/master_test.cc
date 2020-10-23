@@ -27,7 +27,7 @@ TEST(MasterTest, BasicTest) {
         MasterServer master_server(master_address);
     }};
 
-    std::this_thread::sleep_for(std::chrono::milliseconds {1 * 1000});
+    std::this_thread::sleep_for(std::chrono::milliseconds {2 * 1000});
     MasterClient master_client1(master_address);
     MasterClient master_client2(master_address);
     MasterClient master_client3(master_address);
