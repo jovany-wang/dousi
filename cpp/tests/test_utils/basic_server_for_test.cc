@@ -21,16 +21,16 @@ int main() {
     }
 
     {
+        // User-defined class as argument or return type.
+        auto user_defined = rpc_server.CreateService<UserDefinedClass>();
+        user_defined.RegisterMethod(dousi::Remote(&UserDefinedClass::IncrAge));
+    }
+
+    {
         // VoidReturnService
         auto void_return = rpc_server.CreateService<VoidReturnService>();
         void_return.RegisterMethod(dousi::Remote(&VoidReturnService::Perform));
         void_return.RegisterMethod(dousi::Remote(&VoidReturnService::Get));
-    }
-
-    {
-        // User-defined class as argument or return type.
-        auto user_defined = rpc_server.CreateService<UserDefinedClass>();
-        user_defined.RegisterMethod(dousi::Remote(&UserDefinedClass::IncrAge));
     }
 
     rpc_server.Loop();
