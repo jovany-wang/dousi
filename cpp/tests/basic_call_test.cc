@@ -34,6 +34,15 @@ TEST(BasicCallTest, TestEchoer) {
         const auto after = void_return.Call(dousi::Remote(&VoidReturnService::Get)).Get();
         ASSERT_TRUE("456" == *after);
     }
+
+    {
+        // Test user-defined class as argument or return type.
+        auto user_defined = rpc_client.GetService("UserDefinedClass");
+        Person p {"Allen", 19};
+        const auto person = user_defined.Call(dousi::Remote(&UserDefinedClass::IncrAge), p, 2);
+        ASSERT_TRUE("Allen" == person.Get()->name);
+        ASSERT_EQ(21, person.Get()->age);
+    }
 }
 
 
