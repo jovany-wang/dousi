@@ -1,6 +1,8 @@
 #ifndef _DOUSI_TEST_UTILS_BASIC_SERVICES_H_
 #define _DOUSI_TEST_UTILS_BASIC_SERVICES_H_
 
+#include <msgpack.hpp>
+
 #include <string>
 
 #include "../src/core/dousi.h"
@@ -38,5 +40,19 @@ public:
 private:
     std::string data_ = "123";
 };
+
+struct Person {
+    std::string name;
+    int age;
+    MSGPACK_DEFINE(name, age);
+};
+
+class UserDefinedClass : public dousi::AbstractService {
+public:
+    Person IncrAge(const Person &person, int delta) {
+        return Person {person.name, person.age + delta};
+    }
+};
+
 
 #endif

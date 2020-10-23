@@ -27,6 +27,12 @@ int main() {
         void_return.RegisterMethod(dousi::Remote(&VoidReturnService::Get));
     }
 
+    {
+        // User-defined class as argument or return type.
+        auto user_defined = rpc_server.CreateService<UserDefinedClass>();
+        user_defined.RegisterMethod(dousi::Remote(&UserDefinedClass::IncrAge));
+    }
+
     rpc_server.Loop();
 
     return 0;
