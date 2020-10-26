@@ -10,7 +10,16 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>rpc-client</module>
+        <module>rpc-server</module>
+        <module>examples</module>
     </modules>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.50.Final</version>
+        </dependency>
+    </dependencies>
 
 </project>
