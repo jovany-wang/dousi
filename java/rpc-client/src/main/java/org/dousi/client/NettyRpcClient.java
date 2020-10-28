@@ -41,18 +41,11 @@ public class NettyRpcClient implements DousiRpcClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
-//                  socketChannel.pipeline().addLast(MarshallingCodefactory.buildDecoder());
-//                  socketChannel.pipeline().addLast(MarshallingCodefactory.buildEncoder());
                         socketChannel.pipeline().addLast(new DousiRpcClientChannelHandler(NettyRpcClient.this));
                     }
                 });
 
-        // 客户端开启
         cf = bs.connect("127.0.0.1", 10001).sync();
-//        // 发送客户端的请求
-//        cf.channel().writeAndFlush(Unpooled.copiedBuffer(reqStr.getBytes(Constant.charset)));
-//        // 等待直到连接中断
-//        cf.channel().closeFuture().sync();
     }
 
     @Override
@@ -102,6 +95,6 @@ public class NettyRpcClient implements DousiRpcClient {
     @Override
     public <T> T newStub(Class<T> serviceClz) {
         return (T) Proxy.newProxyInstance(
-                serviceClz.getClassLoader(), new Class[]{serviceClz}, new ProxyHandler<T>(this, serviceClz/*, invoker*/, null));
+                serviceClz.getClassLoader(), new Class[]{serviceClz}, new ProxyHandler<T>(this, serviceClz));
     }
 }
