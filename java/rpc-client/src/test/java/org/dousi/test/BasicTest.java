@@ -1,11 +1,15 @@
 package org.dousi.test;
 
 
+import io.netty.buffer.ByteBuf;
 import org.dousi.client.DousiRpcClient;
 import org.dousi.client.DousiService;
 import org.dousi.client.NativeRpcClient;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -44,7 +48,9 @@ public class BasicTest {
         DousiRpcClient rpcClient = new NativeRpcClient("127.0.0.1:10001");
         DousiService service = rpcClient.getService("Adder");
         CompletableFuture<Object> future = service.asyncFunction("add").invoke(Integer.class, 2, 3);
+        CompletableFuture<Object> future2 = service.asyncFunction("add").invoke(Integer.class, 2, 6);
         Assert.assertEquals(future.get(), 5);
+        Assert.assertEquals(future2.get(), 8);
     }
 
     @Test
@@ -58,5 +64,16 @@ public class BasicTest {
         PersonInfo received = (PersonInfo) future.get();
         Assert.assertEquals(received.getName(), "Allen");
         Assert.assertEquals(received.getAge(), 21);
+    }
+
+    @Test
+    public void f() {
+        byte[] data = new byte[8];
+        ByteBuffer buf = ByteBuffer.wrap(data);
+        buf.order(ByteOrder.LITTLE_ENDIAN);
+        buf.putLong(7);
+
+        int x = 3;
+        int ux = x >> 8;
     }
 }
