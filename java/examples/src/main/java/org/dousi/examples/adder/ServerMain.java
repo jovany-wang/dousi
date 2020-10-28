@@ -4,7 +4,7 @@ import org.dousi.server.DousiRpcServer;
 
 public class ServerMain {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         DousiRpcServer rpcServer = new DousiRpcServer("127.0.0.1:10001");
         rpcServer.registerService(AdderService.class, new AdderServiceImpl());
         rpcServer.loop();
