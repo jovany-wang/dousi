@@ -79,6 +79,10 @@ public class NativeRpcClient implements DousiRpcClient {
         }
     }
 
+    public <T> T newStub(Class<T> serviceClz) {
+        return null;
+    }
+
     private native long nativeNewRpcClient(String serverAddress);
 
     private native long nativeInvoke(long rpcClientPointer, byte[] encodedFuncNameAndArgs);
