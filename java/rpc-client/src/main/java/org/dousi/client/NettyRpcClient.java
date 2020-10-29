@@ -7,6 +7,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.dousi.common.exception.ParserAddrException;
 
 import java.io.IOException;
 import java.lang.reflect.Proxy;
@@ -17,7 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class NettyRpcClient implements DousiRpcClient {
 
-    private String serverAddr;
+    private String ip;
+    private int port;
 
     private ChannelFuture cf;
 
@@ -27,9 +29,14 @@ public class NettyRpcClient implements DousiRpcClient {
 
     private ConcurrentHashMap<Integer, CompletableFuture<Object>> returnFutures = new ConcurrentHashMap<>();
 
-    public NettyRpcClient(String serverAddr) throws InterruptedException {
-        this.serverAddr = serverAddr;
-
+    public NettyRpcClient(String serverAddr) throws InterruptedException, ParserAddrException {
+        try {
+            String[] split = serverAddr.split(":");
+            ip = split[0];
+            port = Integer.parseInt(split[1]);
+        } catch (Exception e) {
+            throw new ParserAddrException("Parsing serverAddr fail");
+        }
         EventLoopGroup bossGroup = new NioEventLoopGroup();
 
         Bootstrap bs = new Bootstrap();
@@ -45,7 +52,7 @@ public class NettyRpcClient implements DousiRpcClient {
                     }
                 });
 
-        cf = bs.connect("127.0.0.1", 10001).sync();
+        cf = bs.connect(ip, port).sync();
     }
 
     @Override

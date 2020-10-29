@@ -9,6 +9,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.dousi.common.exception.ParserAddrException;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,9 +21,20 @@ public class DousiRpcServer {
 
     private NioEventLoopGroup workerGroup;
 
-    private ConcurrentHashMap<String, ServiceInfo> serviceInfo = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ServiceInfo> serviceInfo = new ConcurrentHashMap<>();
 
-    public DousiRpcServer(String listeningAddr) {
+    private final String ip;
+
+    private final int port;
+
+    public DousiRpcServer(String listeningAddr) throws ParserAddrException {
+        try {
+            String[] split = listeningAddr.split(":");
+            ip = split[0];
+            port = Integer.parseInt(split[1]);
+        } catch (Exception e) {
+            throw new ParserAddrException("Parsing listeningAddr fail");
+        }
         bossGroup = new NioEventLoopGroup(1);
         workerGroup = new NioEventLoopGroup();
     }
@@ -52,7 +64,8 @@ public class DousiRpcServer {
         serverBootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
         serverBootstrap.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
-        ChannelFuture f = serverBootstrap.bind(10001).syncUninterruptibly();
+
+        ChannelFuture f = serverBootstrap.bind(ip,port).syncUninterruptibly();
         serverChannel = f.channel();
         serverChannel.closeFuture().sync();
     }
