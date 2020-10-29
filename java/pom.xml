@@ -12,7 +12,13 @@
         <module>rpc-client</module>
         <module>rpc-server</module>
         <module>examples</module>
+        <module>common</module>
     </modules>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 
     <dependencies>
         <dependency>
