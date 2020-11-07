@@ -30,7 +30,7 @@ LINK_DIRECTORIES(${BOOST_STATIC_LIB_DIR})
 ################################## Dousi libraries ###################################
 # dousi_common_lib library
 ADD_LIBRARY(dousi_common_lib cpp/src/common/endpoint.cc cpp/src/common/logging.cc)
-ADD_DEPENDENCIES(dousi_common_lib boost_ep spdlog_ep)
+ADD_DEPENDENCIES(dousi_common_lib boost_ep spdlog_ep msgpack_ep)
 
 # dousi_stream_lib
 ADD_LIBRARY(dousi_stream_lib cpp/src/core/stream/stream.cc)
