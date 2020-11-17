@@ -9,7 +9,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  cpp_build_and_test:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -21,3 +21,17 @@ jobs:
       run: ./build.sh
     - name: run tests
       run: cd build && ../cpp/run_all_tests.sh
+
+
+  java_build_and_test:
+    runs-on: ${{ matrix.os }}
+      strategy:
+        matrix:
+          os: [macos-latest, ubuntu-latest]
+
+      steps:
+        - uses: actions/checkout@v2
+        - name: build
+          run: cd java && mvn clean install -DskipTests
+        - name: run tests
+          run: cd java && mvn test
