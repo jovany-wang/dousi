@@ -56,31 +56,33 @@ public class NettyRpcClient implements DousiRpcClient {
 
     @Override
     public DousiService getService(String serviceName) {
-        return null;
+        return new DousiServiceImpl(this, serviceName);
     }
 
     @Override
     public CompletableFuture<Object> invoke(Class<?> returnClz, String funcName, Object[] args) {
-        return null;
+        try {
+            return submit(returnClz, funcName, args);
+        } catch (IOException | InterruptedException e) {
+            return null;
+        }
     }
 
     CompletableFuture<Object> submit(Class<?> returnType, String methodName, Object[] args) throws IOException, InterruptedException {
-        synchronized (this) {
-            final int objectId = ai.getAndIncrement();
-            final byte[] encoded = new Codec().encodeFunc(methodName, args);
+        final int objectId = ai.getAndIncrement();
+        final byte[] encoded = new Codec().encodeFunc(methodName, args);
+        CompletableFuture<Object> returnedFuture = new CompletableFuture<>();
+        returnTypes.put(objectId, returnType);
+        returnFutures.put(objectId, returnedFuture);
 
-            CompletableFuture<Object> returnedFuture = new CompletableFuture<>();
-            returnTypes.put(objectId, returnType);
-            returnFutures.put(objectId, returnedFuture);
+        ByteBuf byteBuf = cf.channel().alloc().heapBuffer();
+        byteBuf.order(ByteOrder.LITTLE_ENDIAN);
+        byteBuf.writeIntLE(objectId);
+        byteBuf.writeIntLE(encoded.length);
+        byteBuf.writeBytes(encoded);
+        cf.channel().writeAndFlush(byteBuf).sync();
+        return returnedFuture;
 
-            ByteBuf byteBuf = cf.channel().alloc().heapBuffer();
-            byteBuf.order(ByteOrder.LITTLE_ENDIAN);
-            byteBuf.writeIntLE(objectId);
-            byteBuf.writeIntLE(encoded.length);
-            byteBuf.writeBytes(encoded);
-            cf.channel().writeAndFlush(byteBuf).sync();
-            return returnedFuture;
-        }
     }
 
     @Override
@@ -93,9 +95,7 @@ public class NettyRpcClient implements DousiRpcClient {
     }
 
     void putReturnValue(int objectId, Object result) {
-        synchronized (this) {
-            returnFutures.get(objectId).complete(result);
-        }
+        returnFutures.get(objectId).complete(result);
     }
 
     @Override

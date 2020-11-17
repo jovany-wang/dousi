@@ -7,7 +7,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
-FIND_PACKAGE(JNI REQUIRED)
+#FIND_PACKAGE(JNI REQUIRED)
 
 INCLUDE(ExternalProject)
 INCLUDE(CMakeUtils)
@@ -23,7 +23,7 @@ INCLUDE_DIRECTORIES(SYSTEM ${GFLAGS_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(SYSTEM ${MSGPACK_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(SYSTEM ${SPDLOG_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(SYSTEM cpp/thirdparty)
-INCLUDE_DIRECTORIES(SYSTEM ${JNI_INCLUDE_DIRS})
+#INCLUDE_DIRECTORIES(SYSTEM ${JNI_INCLUDE_DIRS})
 
 LINK_DIRECTORIES(${BOOST_STATIC_LIB_DIR})
 
@@ -58,9 +58,9 @@ ADD_DEPENDENCIES(dousi_master_client_lib dousi_submitter_lib boost_ep dousi_comm
 TARGET_LINK_LIBRARIES(dousi_master_client_lib dousi_submitter_lib dousi_common_lib pthread)
 
 # JNI library
-ADD_LIBRARY(dousi_jni_client_lib SHARED cpp/src/jni/org_dousi_client_NativeRpcClient.cc)
-ADD_DEPENDENCIES(dousi_jni_client_lib dousi_submitter_lib boost_ep dousi_common_lib msgpack_ep)
-TARGET_LINK_LIBRARIES(dousi_jni_client_lib dousi_submitter_lib dousi_common_lib pthread)
+#ADD_LIBRARY(dousi_jni_client_lib SHARED cpp/src/jni/org_dousi_client_NativeRpcClient.cc)
+#ADD_DEPENDENCIES(dousi_jni_client_lib dousi_submitter_lib boost_ep dousi_common_lib msgpack_ep)
+#TARGET_LINK_LIBRARIES(dousi_jni_client_lib dousi_submitter_lib dousi_common_lib pthread)
 
 
 # dousi default master server binary
