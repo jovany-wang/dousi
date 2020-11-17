@@ -2,11 +2,9 @@ package org.dousi.server;
 
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
-import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -22,9 +20,10 @@ public class ServerCodec {
         final int argsNum = messageUnpacker.unpackArrayHeader();
         // The argsNum can be used to find the overloading methods.
 
+        final String serviceName = messageUnpacker.unpackString();
         final String methodName = messageUnpacker.unpackString();
 
-        ServiceInfo serviceInfo = rpcServer.getService();
+        ServiceInfo serviceInfo = rpcServer.getService(serviceName);
         Method method = serviceInfo.getMethod(methodName);
 
         Class<?>[] paramTypes = method.getParameterTypes();
@@ -52,6 +51,8 @@ public class ServerCodec {
             ret[i] = arg;
         }
 
+        // Note that if we do not set this attr, the un-public service will be failed.
+        method.setAccessible(true);
         Object result = method.invoke(serviceInfo.getServiceObject(), ret);
         return encode(result);
     }

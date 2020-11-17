@@ -17,10 +17,12 @@ public class Codec {
 
     private final static String STRING_TYPE_NAME = "java.lang.String";
 
-    public byte[] encodeFunc(String funcName, Object[] args) throws IOException {
+    public byte[] encodeFunc(String serviceName, String funcName, Object[] args) throws IOException {
         // assert args != nullptr.
         MessageBufferPacker messagePacker = MessagePack.newDefaultBufferPacker();
-        messagePacker.packArrayHeader(1 + args.length);
+        // [serviceName, funcName, args...]
+        messagePacker.packArrayHeader(2 + args.length);
+        messagePacker.packString(serviceName);
         messagePacker.packString(funcName);
 
         for (Object arg : args) {
@@ -51,7 +53,7 @@ public class Codec {
         return messagePacker.toByteArray();
     }
 
-    public Object decodeReturnValue(Class returnClz, byte[] encodedBytes) throws IOException {
+    public Object decodeReturnValue(Class<?> returnClz, byte[] encodedBytes) throws IOException {
         if (returnClz == null) {
             throw new RuntimeException("Internal bug.");
         }

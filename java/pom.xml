@@ -13,6 +13,7 @@
         <module>rpc-server</module>
         <module>examples</module>
         <module>common</module>
+        <module>test</module>
     </modules>
 
     <properties>

@@ -58,7 +58,7 @@ public class DousiAsyncFunction {
     }
 
     private CompletableFuture<Object> internalInvoke(Class returnClz, Object[] args) {
-        return rpcClient.invoke(returnClz, funcName, args);
+        return rpcClient.invoke(returnClz, serviceName, funcName, args);
     }
 
 }

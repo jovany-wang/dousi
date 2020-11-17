@@ -39,8 +39,8 @@ public class DousiRpcServer {
         workerGroup = new NioEventLoopGroup();
     }
 
-    public ServiceInfo getService() {
-        return serviceInfo.get("org.dousi.examples.adder.AdderService");
+    public ServiceInfo getService(String serviceName) {
+        return serviceInfo.get(serviceName);
     }
 
     public void registerService(Class<?> service, Object instance) {
