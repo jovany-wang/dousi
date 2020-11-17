@@ -1,15 +1,12 @@
 package org.dousi.test;
 
 
-import io.netty.buffer.ByteBuf;
 import org.dousi.client.DousiRpcClient;
 import org.dousi.client.DousiService;
-import org.dousi.client.NativeRpcClient;
+import org.dousi.client.NettyRpcClient;
+import org.dousi.common.exception.ParserAddrException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -44,8 +41,8 @@ class PersonInfo implements java.io.Serializable {
 public class BasicTest {
 
     @Test
-    public void testBasicCall() throws InterruptedException, ExecutionException {
-        DousiRpcClient rpcClient = new NativeRpcClient("127.0.0.1:10001");
+    public void testBasicCall() throws InterruptedException, ExecutionException, ParserAddrException {
+        DousiRpcClient rpcClient = new NettyRpcClient("127.0.0.1:10002");
         DousiService service = rpcClient.getService("Adder");
         CompletableFuture<Object> future = service.asyncFunction("add").invoke(Integer.class, 2, 3);
         CompletableFuture<Object> future2 = service.asyncFunction("add").invoke(Integer.class, 2, 6);
@@ -54,8 +51,8 @@ public class BasicTest {
     }
 
     @Test
-    public void testPojoObjectAsArgumentAndReturn() throws ExecutionException, InterruptedException {
-        DousiRpcClient rpcClient = new NativeRpcClient("127.0.0.1:10002");
+    public void testPojoObjectAsArgumentAndReturn() throws ExecutionException, InterruptedException, ParserAddrException {
+        DousiRpcClient rpcClient = new NettyRpcClient("127.0.0.1:10002");
         DousiService service = rpcClient.getService("UserDefinedClass");
         PersonInfo p = new PersonInfo();
         p.setName("Allen");
@@ -64,16 +61,5 @@ public class BasicTest {
         PersonInfo received = (PersonInfo) future.get();
         Assert.assertEquals(received.getName(), "Allen");
         Assert.assertEquals(received.getAge(), 21);
-    }
-
-    @Test
-    public void f() {
-        byte[] data = new byte[8];
-        ByteBuffer buf = ByteBuffer.wrap(data);
-        buf.order(ByteOrder.LITTLE_ENDIAN);
-        buf.putLong(7);
-
-        int x = 3;
-        int ux = x >> 8;
     }
 }
