@@ -18,7 +18,8 @@ public class ProxyHandler<T> implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        CompletableFuture<Object> future = nettyRpcClient.submit(method.getReturnType(), method.getName(), args);
+        CompletableFuture<Object> future = nettyRpcClient.submit(
+                method.getReturnType(), interfaceClazz.getName(), method.getName(), args);
         return future.get();
     }
 

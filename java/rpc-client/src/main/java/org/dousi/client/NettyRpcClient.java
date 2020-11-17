@@ -28,6 +28,8 @@ public class NettyRpcClient implements DousiRpcClient {
 
     private ConcurrentHashMap<Integer, CompletableFuture<Object>> returnFutures = new ConcurrentHashMap<>();
 
+    private EventLoopGroup bossGroup;
+
     public NettyRpcClient(String serverAddr) throws InterruptedException, ParserAddrException {
         try {
             String[] split = serverAddr.split(":");
@@ -36,10 +38,8 @@ public class NettyRpcClient implements DousiRpcClient {
         } catch (Exception e) {
             throw new ParserAddrException("Parsing serverAddr fail");
         }
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-
+        bossGroup = new NioEventLoopGroup();
         Bootstrap bs = new Bootstrap();
-
         bs.group(bossGroup)
                 .channel(NioSocketChannel.class)
                 .option(ChannelOption.SO_KEEPALIVE, true)
@@ -60,17 +60,17 @@ public class NettyRpcClient implements DousiRpcClient {
     }
 
     @Override
-    public CompletableFuture<Object> invoke(Class<?> returnClz, String funcName, Object[] args) {
+    public CompletableFuture<Object> invoke(Class<?> returnClz, String serviceName, String funcName, Object[] args) {
         try {
-            return submit(returnClz, funcName, args);
+            return submit(returnClz, serviceName, funcName, args);
         } catch (IOException | InterruptedException e) {
             return null;
         }
     }
 
-    CompletableFuture<Object> submit(Class<?> returnType, String methodName, Object[] args) throws IOException, InterruptedException {
+    CompletableFuture<Object> submit(Class<?> returnType, String serviceName, String methodName, Object[] args) throws IOException, InterruptedException {
         final int objectId = ai.getAndIncrement();
-        final byte[] encoded = new Codec().encodeFunc(methodName, args);
+        final byte[] encoded = new Codec().encodeFunc(serviceName, methodName, args);
         CompletableFuture<Object> returnedFuture = new CompletableFuture<>();
         returnTypes.put(objectId, returnType);
         returnFutures.put(objectId, returnedFuture);
@@ -86,8 +86,8 @@ public class NettyRpcClient implements DousiRpcClient {
     }
 
     @Override
-    public void close() {
-
+    public void shutdown() {
+        bossGroup.shutdown();
     }
 
     Class<?> getReturnType(int objectId) {

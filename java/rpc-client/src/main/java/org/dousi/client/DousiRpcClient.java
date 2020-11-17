@@ -6,9 +6,9 @@ public interface DousiRpcClient {
 
     DousiService getService(String serviceName);
 
-    CompletableFuture<Object> invoke(Class<?> returnClz, String funcName, Object[] args);
+    CompletableFuture<Object> invoke(Class<?> returnClz, String serviceName, String funcName, Object[] args);
 
-    void close();
+    void shutdown();
 
     <T> T newStub(Class<T> serviceClz);
 }
