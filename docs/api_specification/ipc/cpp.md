@@ -46,7 +46,7 @@ TODO
 // 模版参数std::string是产生的record的类型.
 class MockSource : public SourceService<std::string> {
 public:
-    MockSource() : SourceSerive<std::string>(/*channel_name=*/"MockSource") {}
+    MockSource() : SourceSerive<std::string>(/*this_endpoint=*/"127.0.0.1:10000/MockSource") {}
     
     void Start() override {
         std::string text = "A redirect is a page which automatically sends visitors to another page,"
@@ -70,8 +70,8 @@ public:
 class MapService : public StreamingService<std::string, std::unordered_map<std::string, size_t>> {
 public:
     MapService() : StreamingService<std::string, std::pair<std::string, size_t>>(
-        /*upstream_channel_name=*/"MockSource",
-        /*downstream_channel_name=*/"Map") {}
+        /*upstream_endpoint=*/"127.0.0.1:10000/MockSource",
+        /*this_endpoint=*/"127.0.0.1:10001/Map") {}
     
     void OnRecord(const std::string &line) override {
         std::unordered_map<std::string, size_t> count = MyUtils::Count(line);
@@ -86,7 +86,7 @@ public:
 class ReduceAndSinkService : public StreamingSink<std::unordered_map<std::string, size_t>> {
 public:
     ReduceAndSinkService() : StreamingService<std::string, std::pair<std::string, size_t>>(
-        /*upstream_channel_name=*/"Map") {}
+        /*upstream_endpoint=*/"127.0.0.1:10001/Map") {}
     
        void OnRecord(const std::pair<std::string, size_t> &pair) override {
             UpdateAndSinkResult(pair);
