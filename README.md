@@ -1,15 +1,15 @@
 # dousi
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/jovany-wang/dousi/CI)
 ![Github Star Number](https://badgen.net/github/stars/jovany-wang/dousi)  
-A modern multiple paradigm distributed IPC framework.
+A modern multiple languages RPC framework.
 
 
 Note that this is working on progress.
 
 ## Features
-- Optimized Control flow and Data flow transfering.
-- Optimize transfering the large size data to many remote ends.
-- Mutilpe languages servers.
+- Optimized Control flow and Data flow transferring.
+- Optimize transferring the large size data to many remote ends.
+- Multiple languages servers.
 - Compiling safe both in C++ server and client.
 
 ## Pure C++ Usage
@@ -65,14 +65,8 @@ More information can be refered in [Java Part of Dousi](https://github.com/jovan
 
 ## Roadmap
 - [x] Prototype of C++ implementation
-- [x] Java Async Client
-- [ ] Optimize large data transforing
-- [ ] Support mutilpe languages servers
+- [x] Prototype of Java async server and client
+- [ ] Optimize large data transferring
+- [ ] Support multiple languages servers
 - [ ] Optimize buffer-shipping in process
 - [ ] Nested RPC call
-
-## Multiple Advanced Models for Distributed IPC
-### 1. Master-Slaves IPC Model
-### 2. P2P IPC Model
-### 3. Multiple Replicas
-
