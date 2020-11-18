@@ -27,12 +27,13 @@ public class DousiRpcServerChannelHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, IOException, InterruptedException {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         ByteBuf buf = (ByteBuf) msg;
         if (buf.readableBytes() < 8) {
-            LOG.debug("buf is less than 8 bytes as header.");
-            // not enough to a header.
-            throw new RuntimeException("Header is not ready.");
+            LOG.debug("Buffer is less than 8 bytes as header.");
+            // The buffer is not enough to handle, so do not decode it now.
+            // It will be triggered once the following bytes arrived.
+            return;
         }
         buf.order(ByteOrder.LITTLE_ENDIAN);
         final int objectId =buf.readIntLE();
@@ -46,7 +47,8 @@ public class DousiRpcServerChannelHandler extends ChannelInboundHandlerAdapter {
         if (bodySize > buf.readableBytes()) {
             LOG.debug("Body size is not enough. Expected is " +
                     bodySize + ", but number of readable bytes is " + buf.readableBytes());
-            // bytes are not enough to parse a msg.
+            // The buffer is not enough to handle, so do not decode it now.
+            // It will be triggered once the following bytes arrived.
             return;
         }
 

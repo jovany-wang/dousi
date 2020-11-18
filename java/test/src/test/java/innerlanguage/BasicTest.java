@@ -7,7 +7,6 @@ import org.dousi.common.exception.ParserAddrException;
 import org.dousi.server.DousiRpcServer;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -53,6 +52,17 @@ public class BasicTest {
         AdderService service = client.newStub(AdderService.class);
         int result = service.sub(200, 3);
         Assert.assertEquals(197, result);
+        client.shutdown();
+    }
+
+    @Test
+    public void testMultiCalls() throws ParserAddrException, InterruptedException {
+        DousiRpcClient client = new NettyRpcClient("127.0.0.1:10001");
+        AdderService service = client.newStub(AdderService.class);
+        int result1 = service.add(3, 4);
+        int result2 = service.add(1, 2);
+        Assert.assertEquals(7, result1);
+        Assert.assertEquals(3, result2);
         client.shutdown();
     }
 
