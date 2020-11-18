@@ -47,26 +47,10 @@ ADD_LIBRARY(dousi_submitter_lib cpp/src/core/submitter/submitter.cc)
 ADD_DEPENDENCIES(dousi_submitter_lib dousi_common_lib dousi_stream_lib boost_ep)
 TARGET_LINK_LIBRARIES(dousi_submitter_lib dousi_common_lib dousi_stream_lib)
 
-# dousi_master_server_lib
-ADD_LIBRARY(dousi_master_server_lib cpp/src/runtime/distributed/master/master_server.cc)
-ADD_DEPENDENCIES(dousi_master_server_lib boost_ep dousi_common_lib dousi_executor_lib gflags_ep msgpack_ep)
-TARGET_LINK_LIBRARIES(dousi_master_server_lib dousi_common_lib dousi_executor_lib pthread)
-
-# dousi_master_client_lib
-ADD_LIBRARY(dousi_master_client_lib cpp/src/runtime/distributed/master/master_client.cc)
-ADD_DEPENDENCIES(dousi_master_client_lib dousi_submitter_lib boost_ep dousi_common_lib msgpack_ep)
-TARGET_LINK_LIBRARIES(dousi_master_client_lib dousi_submitter_lib dousi_common_lib pthread)
-
 # JNI library
 #ADD_LIBRARY(dousi_jni_client_lib SHARED cpp/src/jni/org_dousi_client_NativeRpcClient.cc)
 #ADD_DEPENDENCIES(dousi_jni_client_lib dousi_submitter_lib boost_ep dousi_common_lib msgpack_ep)
 #TARGET_LINK_LIBRARIES(dousi_jni_client_lib dousi_submitter_lib dousi_common_lib pthread)
-
-
-# dousi default master server binary
-ADD_EXECUTABLE(dousi_default_master cpp/src/runtime/distributed/master/default_master_server_main.cc)
-ADD_DEPENDENCIES(dousi_default_master  dousi_master_server_lib dousi_stream_lib dousi_common_lib)
-TARGET_LINK_LIBRARIES(dousi_default_master dousi_master_server_lib dousi_stream_lib dousi_common_lib pthread)
 
 ################################## Dousi libraries ###################################
 
@@ -90,8 +74,6 @@ DEFINE_DOUSI_TEST(test_basic_call SRC_FILES cpp/tests/basic_call_test.cc LINKS d
 
 DEFINE_DOUSI_TEST(test_multiple_calls SRC_FILES cpp/tests/multiple_calls_with_no_wait.cc LINKS dousi_common_lib dousi_submitter_lib)
 
-DEFINE_DOUSI_TEST(test_master SRC_FILES cpp/src/runtime/distributed/master/master_test.cc LINKS dousi_master_server_lib dousi_master_client_lib dousi_stream_lib dousi_common_lib)
-
 DEFINE_DOUSI_TEST(test_nameof SRC_FILES cpp/tests/nameof_test.cc)
 
 DEFINE_DOUSI_TEST(test_dousi_method_macro SRC_FILES cpp/tests/method_macro_test.cc)
@@ -100,8 +82,6 @@ DEFINE_DOUSI_TEST(test_logging SRC_FILES cpp/tests/logging_test.cc LINKS dousi_c
 
 DEFINE_DOUSI_TEST(test_concurrent_queue SRC_FILES cpp/tests/concurrent_queue_test.cc LINKS dousi_common_lib)
 
-DEFINE_DOUSI_TEST(processor_main_1 SRC_FILES cpp/tests/distributed/processor1_main.cc LINKS dousi_master_server_lib dousi_master_client_lib dousi_stream_lib dousi_common_lib)
-DEFINE_DOUSI_TEST(processor_main_2 SRC_FILES cpp/tests/distributed/processor2_main.cc LINKS dousi_master_server_lib dousi_master_client_lib dousi_stream_lib dousi_common_lib)
 ###################### Dousi Tests #######################
 
 
