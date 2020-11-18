@@ -73,8 +73,9 @@ void Executor::LoopToPerformRequest() {
 void Executor::InvokeMethod(uint64_t stream_id, uint32_t object_id, const std::shared_ptr<char> &buffer_ptr, const size_t &buffer_size) {
     std::shared_ptr<msgpack::unpacked> unpacked = std::make_shared<msgpack::unpacked>();
     msgpack::unpack(*unpacked, buffer_ptr.get(), buffer_size);
-    auto tuple = unpacked->get().as<std::tuple<std::string>>();
-    const auto method_name = std::get<0>(tuple);
+    auto tuple = unpacked->get().as<std::tuple<std::string, std::string>>();
+    const auto service_name = std::get<0>(tuple);
+    const auto method_name = std::get<1>(tuple);
 
     // If there has work thread pool, post the request to request queue.
     if (executor_options_.work_thread_num_ > 0) {

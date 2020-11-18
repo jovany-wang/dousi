@@ -9,13 +9,15 @@ namespace dousi {
 /// the method name instead of a real argument.
 template<typename MethodType, typename ServiceOriginalType, typename FirstArgType, typename... Args>
 static auto TraitAndCall(
-        const MethodType &method, ServiceOriginalType &service_object, std::tuple<FirstArgType, Args...> tuple) {
+        const MethodType &method, ServiceOriginalType &service_object,
+        std::tuple<std::string, FirstArgType, Args...> tuple) {
     return TraitAndCall2(method, service_object, std::make_index_sequence<sizeof...(Args)>{}, std::move(tuple));
 }
 
 template<typename MethodType, typename ServiceOriginalType, typename FirstArgType, typename... Args>
 static auto TraitAndCallVoidReturn(
-        const MethodType &method, ServiceOriginalType &service_object, std::tuple<FirstArgType, Args...> tuple) {
+        const MethodType &method, ServiceOriginalType &service_object,
+        std::tuple<std::string, FirstArgType, Args...> tuple) {
     TraitAndCall2VoidReturn(method, service_object, std::make_index_sequence<sizeof...(Args)>{}, std::move(tuple));
 }
 
@@ -26,16 +28,16 @@ inline static auto TraitAndCall2(
         /// the methods will be performed on one service instance. The issue of that is
         /// https://github.com/jovany-wang/dousi/issues/12
         ServiceOriginalType &service_object,
-        const std::index_sequence<Index ...> &, std::tuple<std::string, Args...> tuple) {
-    return (service_object.*method)(std::move(std::get<Index + 1>(tuple)) ...);
+        const std::index_sequence<Index ...> &, std::tuple<std::string, std::string, Args...> tuple) {
+    return (service_object.*method)(std::move(std::get<Index + 2>(tuple)) ...);
 }
 
 template<typename MethodType, typename ServiceOriginalType, size_t... Index, typename... Args>
 inline static auto TraitAndCall2VoidReturn(
         const MethodType &method,
         ServiceOriginalType &service_object,
-        const std::index_sequence<Index ...> &, std::tuple<std::string, Args...> tuple) {
-    (service_object.*method)(std::move(std::get<Index + 1>(tuple)) ...);
+        const std::index_sequence<Index ...> &, std::tuple<std::string, std::string, Args...> tuple) {
+    (service_object.*method)(std::move(std::get<Index + 2>(tuple)) ...);
 }
 
 template<typename ServiceType>
@@ -51,8 +53,8 @@ struct InvokeHelper {
             DousiService<ServiceOriginalType> *service_instance,
             const std::shared_ptr<msgpack::unpacked> &unpacked,
             std::string &result) {
-        using MethodNameWithArgsTupleTypes = typename FunctionTraits<MethodType>::MethodNameWithArgsTuple;
-        auto method_name_and_args_tuple = unpacked->get().as<MethodNameWithArgsTupleTypes>();
+        using ServiceNameAndMethodNameWithArgsTuple = typename FunctionTraits<MethodType>::ServiceNameAndMethodNameWithArgsTuple;
+        auto method_name_and_args_tuple = unpacked->get().as<ServiceNameAndMethodNameWithArgsTuple>();
 
         auto ret = TraitAndCall(method, service_instance->GetServiceObjectRef(), method_name_and_args_tuple);
 
@@ -72,8 +74,8 @@ struct InvokeHelper<void> {
             DousiService<ServiceOriginalType> *service_instance,
             const std::shared_ptr<msgpack::unpacked> &unpacked,
             std::string &result) {
-        using MethodNameWithArgsTupleTypes = typename FunctionTraits<MethodType>::MethodNameWithArgsTuple;
-        auto method_name_and_args_tuple = unpacked->get().as<MethodNameWithArgsTupleTypes>();
+        using ServiceNameAndMethodNameWithArgsTuple = typename FunctionTraits<MethodType>::ServiceNameAndMethodNameWithArgsTuple;
+        auto method_name_and_args_tuple = unpacked->get().as<ServiceNameAndMethodNameWithArgsTuple>();
 
         TraitAndCallVoidReturn(method, service_instance->GetServiceObjectRef(), method_name_and_args_tuple);
         DOUSI_LOG(INFO) << "The type of the result is void.";
