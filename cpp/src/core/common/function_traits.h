@@ -13,7 +13,9 @@ public:
     template <std::size_t N>
     using ArgsType = std::tuple_element_t<N, std::tuple<Args...>>;
 
-    using MethodNameWithArgsTuple = std::tuple<std::string, std::remove_const_t<std::remove_reference_t<Args>>...>;
+    // Note that the 1st `std::string` indicates the service name, and the 2nd `std::string` indicates the method name.
+    using ServiceNameAndMethodNameWithArgsTuple = std::tuple<
+            std::string, std::string, std::remove_const_t<std::remove_reference_t<Args>>...>;
 };
 
 template <typename T>

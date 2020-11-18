@@ -45,9 +45,10 @@ public class BasicTest {
 //        DousiRpcClient rpcClient = new NettyRpcClient("127.0.0.1:10002");
 //        DousiService service = rpcClient.getService("Adder");
 //        CompletableFuture<Object> future = service.asyncFunction("add").invoke(Integer.class, 2, 3);
-//        CompletableFuture<Object> future2 = service.asyncFunction("add").invoke(Integer.class, 2, 6);
+////        CompletableFuture<Object> future2 = service.asyncFunction("add").invoke(Integer.class, 2, 6);
 //        Assert.assertEquals(future.get(), 5);
-//        Assert.assertEquals(future2.get(), 8);
+//        // TODO(qwang): A bug for this case: ChannelRead should process the buf until the buf is empty.
+////        Assert.assertEquals(future2.get(), 8);
     }
 
     @Test

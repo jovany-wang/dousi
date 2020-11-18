@@ -72,7 +72,7 @@ private:
 
 template<typename MethodType, typename... ArgTypes>
 auto ServiceHandle::Call(RemoteMethod<MethodType> method, ArgTypes... args) {
-    return CallWithMethodName(method, method.GetName(), args...);
+    return CallWithMethodName(method, service_name_, method.GetName(), args...);
 }
 
 template<typename MethodType, typename... ArgTypes>
