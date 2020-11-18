@@ -3,7 +3,7 @@
 
 #include "services.h"
 #include "core/dousi.h"
-#include "runtime/direct/rpc_client.h"
+#include "rpc/rpc_client.h"
 
 int main() {
     using namespace dousi;

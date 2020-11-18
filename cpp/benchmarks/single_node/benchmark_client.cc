@@ -2,7 +2,7 @@
 
 #include "core/common/remote_annotation.h"
 #include "core/executor/dousi_service.h"
-#include "runtime/direct/rpc_client.h"
+#include "rpc/rpc_client.h"
 
 #include <chrono>
 #include <thread>

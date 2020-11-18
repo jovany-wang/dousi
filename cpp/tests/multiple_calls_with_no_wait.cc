@@ -3,7 +3,7 @@
 #include "test_utils/basic_services.h"
 
 #include <nameof/nameof.hpp>
-#include "runtime/direct/rpc_client.h"
+#include "rpc/rpc_client.h"
 #include "core/dousi.h"
 
 TEST(MultipleCallsTest, TestCallsWithNoWait) {

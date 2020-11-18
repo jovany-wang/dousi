@@ -1,15 +1,15 @@
 # dousi
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/jovany-wang/dousi/CI)
 ![Github Star Number](https://badgen.net/github/stars/jovany-wang/dousi)  
-A modern multiple languages RPC framework.
+A Modern Multiple Languages RPC Framework.
 
 
 Note that this is working on progress.
 
 ## Features
-- Optimized Control flow and Data flow transferring.
-- Optimize transferring the large size data to many remote ends.
 - Multiple languages servers.
+- Dynamic schema and dynamic signification validation. 
+- Optimize transferring the large size data to many remote ends.
 - Compiling safe both in C++ server and client.
 
 ## Pure C++ Usage
@@ -69,4 +69,3 @@ More information can be refered in [Java Part of Dousi](https://github.com/jovan
 - [ ] Optimize large data transferring
 - [ ] Support multiple languages servers
 - [ ] Optimize buffer-shipping in process
-- [ ] Nested RPC call

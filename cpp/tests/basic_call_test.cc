@@ -4,7 +4,7 @@
 
 #include <nameof/nameof.hpp>
 #include "core/dousi.h"
-#include "runtime/direct/rpc_client.h"
+#include "rpc/rpc_client.h"
 
 TEST(BasicCallTest, TestEchoer) {
     dousi::RpcClient rpc_client {"127.0.0.1:10002"};

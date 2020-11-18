@@ -1,7 +1,7 @@
 #include "basic_services.h"
 #include "core/dousi.h"
 #include "core/executor/dousi_service.h"
-#include "runtime/direct/rpc_server.h"
+#include "rpc/rpc_server.h"
 
 int main() {
 
