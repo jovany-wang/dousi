@@ -26,12 +26,13 @@ public class DousiRpcClientChannelHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) {}
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, IOException, InterruptedException {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws IOException {
         ByteBuf buf = (ByteBuf) msg;
         if (buf.readableBytes() < 8) {
-            LOG.debug("buf is less than 8 bytes as header.");
-            // Not enough to a header.
-            throw new RuntimeException("Header is not ready.");
+            LOG.debug("Buffer is less than 8 bytes as header.");
+            // The buffer is not enough to handle, so do not decode it now.
+            // It will be triggered once the following bytes arrived.
+            return;
         }
 
         buf.order(ByteOrder.LITTLE_ENDIAN);
@@ -46,7 +47,8 @@ public class DousiRpcClientChannelHandler extends ChannelInboundHandlerAdapter {
         if (bodySize > buf.readableBytes()) {
             LOG.debug("Body size is not enough. Expected is " +
                     bodySize + ", but number of readable bytes is " + buf.readableBytes());
-            // bytes are not enough to parse a msg.
+            // The buffer is not enough to handle, so do not decode it now.
+            // It will be triggered once the following bytes arrived.
             return;
         }
 
@@ -57,6 +59,7 @@ public class DousiRpcClientChannelHandler extends ChannelInboundHandlerAdapter {
         Class<?> returnType = nettyRpcClient.getReturnType(objectId);
         Object result = new Codec().decodeReturnValue(returnType, req);
         nettyRpcClient.putReturnValue(objectId, result);
+        channelRead(ctx, msg);
     }
 
     @Override
