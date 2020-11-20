@@ -8,6 +8,7 @@ int main(int argc, char *argv[]) {
     dousi::RpcServer rpc_server {"127.0.0.1:10002"};
     auto bm_service = rpc_server.CreateService<BenchmarkService>();
     bm_service.RegisterMethod(dousi::Remote(&BenchmarkService::Echo));
+    bm_service.RegisterMethod(dousi::Remote(&BenchmarkService::SlowlyEcho));
     rpc_server.Loop();
 
     return 0;

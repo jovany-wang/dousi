@@ -13,6 +13,12 @@ public:
         return str;
     }
 
+    std::string SlowlyEcho(const std::string &str) {
+        qps_.increase();
+        std::this_thread::sleep_for(std::chrono::milliseconds {10});
+        return str;
+    }
+
 private:
     Qps qps_;
 };
