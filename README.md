@@ -7,8 +7,8 @@ A Modern Multiple Languages RPC Framework.
 Note that this is working on progress.
 
 ## Features
-- Multiple languages servers.
-- Dynamic schema and dynamic signification validation. 
+- Multiple languages server.
+- Dynamic schema and dynamic signature validation. 
 - Optimize transferring the large size data to many remote ends.
 - Compiling safe both in C++ server and client.
 
@@ -59,7 +59,7 @@ int main() {
 ```
 
 ## Cross-Languaged RPC
-We now supported that using a Java client to connect and invoke the C++ RPC server.  
+Java Async-Server and Async-Client is supported now, and it's supported that a Java client connects to C++ server and a C++ client connects to a Java server.  
 More information can be refered in [Java Part of Dousi](https://github.com/jovany-wang/dousi/blob/master/java/README.md)
 
 
