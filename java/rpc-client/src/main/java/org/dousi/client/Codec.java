@@ -10,6 +10,8 @@ import org.msgpack.jackson.dataformat.MessagePackFactory;
 import org.dousi.common.DousiConstants;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class Codec {
 
@@ -25,7 +27,8 @@ public class Codec {
         messagePacker.packString(serviceName);
         messagePacker.packString(funcName);
 
-        final long encodedParamTypes = SignatureUtils.computeEncodedValueOfParamTypeList(args);
+        Object[] paramArray = Arrays.stream(args).map(Object::getClass).collect(Collectors.toList()).toArray();
+        final long encodedParamTypes = SignatureUtils.computeEncodedValueOfParamTypeList(paramArray);
         messagePacker.packLong(encodedParamTypes);
 
         for (Object arg : args) {
@@ -75,9 +78,9 @@ public class Codec {
             throw new RuntimeException("The signature is not matched.");
         }
 
-        if (Integer.class.equals(returnClz)) {
+        if (Integer.class.equals(returnClz) || int.class.equals(returnClz)) {
             return messageUnpacker.unpackInt();
-        } else if (Long.class.equals(returnClz)) {
+        } else if (Long.class.equals(returnClz) || long.class.equals(returnClz)) {
             return messageUnpacker.unpackLong();
         } else if (String.class.equals(returnClz)) {
             return messageUnpacker.unpackString();

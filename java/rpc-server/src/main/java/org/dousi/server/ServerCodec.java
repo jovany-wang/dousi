@@ -28,7 +28,7 @@ public class ServerCodec {
         ServiceInfo serviceInfo = rpcServer.getService(serviceName);
         Method method = serviceInfo.getMethod(methodName);
 
-        Class<?>[] paramTypes = method.getParameterTypes();
+        Object[] paramTypes = method.getParameterTypes();
         final long encodedCodeOfParamListOnServer  = SignatureUtils.computeEncodedValueOfParamTypeList(paramTypes);
         if (encodedCodeOfParamListOnServer != encodedCodeOfParamListOfRequest) {
             // -1 indicates the parameter type list is not matched.
@@ -44,7 +44,7 @@ public class ServerCodec {
         // Check tuple size from bytes and assert equals to paramTypes.
         Object[] ret = new Object[paramTypes.length];
         for (int i = 0; i  < paramTypes.length; ++i) {
-            final Class<?> paramType = paramTypes[i];
+            final Class<?> paramType = (Class<?>) paramTypes[i];
             Object arg = null;
             if (paramType.equals(Integer.class) || paramType.equals(int.class)) {
                 arg = messageUnpacker.unpackInt();

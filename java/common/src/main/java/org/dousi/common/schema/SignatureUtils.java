@@ -15,21 +15,24 @@ public class SignatureUtils {
         // check args.length > 8
         long result = 0x0000000000000000;
         for (int i = args.length - 1; i >= 0; --i) {
-            switch (args[i].getClass().getName()) {
+            switch (((Class<?>) args[i]).getName()) {
+                case DousiConstants.PRIMITIVE_INT_TYPE_NAME:
                 case DousiConstants.INT_TYPE_NAME:
                     result |= 0x0000000000000001;
                     break;
                 case DousiConstants.LONG_TYPE_NAME:
+                case DousiConstants.PRIMITIVE_LONG_TYPE_NAME:
                     result |= 0x0000000000000002;
                     break;
                 case DousiConstants.STRING_TYPE_NAME:
                     result |= 0x0000000000000003;
                     break;
+                case DousiConstants.PRIMITIVE_DOUBLE_TYPE_NAME:
                 case DousiConstants.DOUBLE_TYPE_NAME:
                     result |= 0x0000000000000004;
                     break;
                 default:
-                    throw new RuntimeException("We now don't support the type: " + args[i].getClass());
+                    throw new RuntimeException("We now don't support the type: " + args[i]);
             }
             if (i > 0) {
                 result <<= 8;
