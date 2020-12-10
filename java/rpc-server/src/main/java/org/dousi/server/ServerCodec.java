@@ -22,6 +22,7 @@ public class ServerCodec {
 
         final String serviceName = messageUnpacker.unpackString();
         final String methodName = messageUnpacker.unpackString();
+        final long encodedCodeOfParamList = messageUnpacker.unpackLong();
 
         ServiceInfo serviceInfo = rpcServer.getService(serviceName);
         Method method = serviceInfo.getMethod(methodName);
