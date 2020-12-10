@@ -1,5 +1,6 @@
 package org.dousi.server;
 
+import org.dousi.common.schema.SignatureUtils;
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
@@ -22,12 +23,18 @@ public class ServerCodec {
 
         final String serviceName = messageUnpacker.unpackString();
         final String methodName = messageUnpacker.unpackString();
-        final long encodedCodeOfParamList = messageUnpacker.unpackLong();
+        final long encodedCodeOfParamListOfRequest = messageUnpacker.unpackLong();
 
         ServiceInfo serviceInfo = rpcServer.getService(serviceName);
         Method method = serviceInfo.getMethod(methodName);
 
         Class<?>[] paramTypes = method.getParameterTypes();
+        final long encodedCodeOfParamListOnServer  = SignatureUtils.computeEncodedValueOfParamTypeList(paramTypes);
+        if (encodedCodeOfParamListOnServer != encodedCodeOfParamListOfRequest) {
+            // -1 indicates the parameter type list is not matched.
+            return encodeException(-1);
+        }
+
         if (paramTypes.length == 0) {
             // no params.
             LOG.debug("no params.");
@@ -58,12 +65,20 @@ public class ServerCodec {
         return encode(result);
     }
 
-    public byte[] encode(Object o) throws IOException {
+    private byte[] encode(Object o) throws IOException {
         MessageBufferPacker messagePacker = MessagePack.newDefaultBufferPacker();
+        // packing 0 to the 1st item indicates there is no error.
+        messagePacker.packInt(0);
         if (o.getClass().equals(Integer.class) || o.getClass().equals(int.class)) {
             messagePacker.packInt((Integer) o);
         }
         return messagePacker.toByteArray();
     }
 
+    private byte[] encodeException(int errorCode) throws IOException {
+        // check errorCode != 0.
+        MessageBufferPacker messagePacker = MessagePack.newDefaultBufferPacker();
+        messagePacker.packInt(errorCode);
+        return messagePacker.toByteArray();
+    }
 }
