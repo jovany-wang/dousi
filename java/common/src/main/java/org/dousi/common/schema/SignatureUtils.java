@@ -9,7 +9,7 @@ public class SignatureUtils {
      * is a 64-bits value, and the lowest 8 bits indicates the first parameter type. For
      * example, if the signature of the method is:
      *      void f(int, long, long);
-     * the encoded code should be a 64-bits value: 0x00000221.
+     * the encoded code should be a 64-bits value: 0x0000000000020201.
      */
     public static long computeEncodedValueOfParamTypeList(Object[] args) {
         // check args.length > 8
