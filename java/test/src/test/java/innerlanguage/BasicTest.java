@@ -42,7 +42,7 @@ public class BasicTest {
         DousiRpcClient client = new NettyRpcClient("127.0.0.1:10001");
         AdderService service = client.newStub(AdderService.class);
         int result = service.add(2, 3);
-        Assert.assertEquals(5, result);
+        Assert.assertEquals(result, 5);
         client.shutdown();
     }
 

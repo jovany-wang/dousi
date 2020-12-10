@@ -29,6 +29,7 @@ public class ServiceInfo {
     public Object getServiceObject() {
         return serviceObject;
     }
+
     public Method getMethod(String methodName) {
         return allMethods.get(methodName);
     }
