@@ -5,7 +5,7 @@ import org.dousi.common.DousiConstants;
 public class SignatureUtils {
 
     /**
-     * The method that compute a encoded code for the list of parameters. The encoded code
+     * The method that computes an encoded code for the list of parameters. The encoded code
      * is a 64-bits value, and the lowest 8 bits indicates the first parameter type. For
      * example, if the signature of the method is:
      *      void f(int, long, long);
