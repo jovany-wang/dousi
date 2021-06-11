@@ -6,11 +6,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.SplittableRandom;
 
 public class DousiRpcServerChannelHandler extends ChannelInboundHandlerAdapter {
 
@@ -23,7 +20,7 @@ public class DousiRpcServerChannelHandler extends ChannelInboundHandlerAdapter {
     }
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        System.out.println("客户端连上了");
+        LOG.debug("The client is connected.");
     }
 
     @Override
