@@ -16,6 +16,8 @@ interface AdderService {
     int add(int x, int y);
 
     int sub(int x, int y);
+
+    int get0();
 }
 
 class AdderServiceImpl implements AdderService {
@@ -30,6 +32,10 @@ class AdderServiceImpl implements AdderService {
         return x - y;
     }
 
+    @Override
+    public int get0() {
+        return 0;
+    }
 }
 
 
@@ -63,6 +69,15 @@ public class BasicTest {
         int result2 = service.add(1, 2);
         Assert.assertEquals(7, result1);
         Assert.assertEquals(3, result2);
+        client.shutdown();
+    }
+
+    @Test
+    public void testEmptyArg() throws ParserAddrException, InterruptedException {
+        DousiRpcClient client = new NettyRpcClient("127.0.0.1:10001");
+        AdderService service = client.newStub(AdderService.class);
+        int result = service.get0();
+        Assert.assertEquals(result, 0);
         client.shutdown();
     }
 

@@ -16,21 +16,30 @@ import java.util.stream.Collectors;
 public class Codec {
 
     public byte[] encodeFunc(String serviceName, String funcName, Object[] args) throws IOException {
-        // assert args != nullptr.
-        if (args.length > 8) {
+        final int argsLength = args == null ? 0 : args.length;
+        if (argsLength > 8) {
             throw new RuntimeException("We don't support more than 8 arguments now.");
         }
 
         MessageBufferPacker messagePacker = MessagePack.newDefaultBufferPacker();
         // [serviceName, funcName, paramTypeList(A 64-bits Long), args...]
-        messagePacker.packArrayHeader(3 + args.length);
+        messagePacker.packArrayHeader(3 + argsLength);
         messagePacker.packString(serviceName);
         messagePacker.packString(funcName);
-
-        Object[] paramArray = Arrays.stream(args).map(Object::getClass).collect(Collectors.toList()).toArray();
+        Object[] paramArray;
+        if (argsLength != 0) {
+            paramArray = Arrays.stream(args).map(Object::getClass).collect(Collectors.toList()).toArray();
+        } else {
+            paramArray = new Object[0];
+        }
         final long encodedParamTypes = SignatureUtils.computeEncodedValueOfParamTypeList(paramArray);
         messagePacker.packLong(encodedParamTypes);
 
+        if (argsLength == 0) {
+            return messagePacker.toByteArray();
+        }
+
+        /// Pack arguments.
         for (Object arg : args) {
             if (arg == null) {
                 messagePacker.packNil();
