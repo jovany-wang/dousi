@@ -2,12 +2,13 @@ package org.dousi.newdousi.runtime;
 
 import org.dousi.newdousi.api.DousiClient;
 import org.dousi.newdousi.api.DousiMethod2;
+import org.dousi.newdousi.api.DousiRuntimeType;
 
 import java.util.concurrent.CompletableFuture;
 
 public class DousiClientInNetty implements DousiClient {
 
-    private DousiRuntime runtime = new DousiRuntime();
+    private DousiRuntime runtime = new DousiRuntime(DousiRuntimeType.CLIENT_RUNTIME);
 
     public DousiClientInNetty(String addr) {
 
