@@ -22,18 +22,18 @@ public class DousiRuntime {
 
             }
         } else if (type == DousiRuntimeType.CLIENT_RUNTIME) {
-            clientRuntime = new DousiClientRuntime();
+            clientRuntime = new DousiClientRuntime("127.0.0.1:10002");
         }
     }
 
 
 
-    <ReturnType> CompletableFuture<ReturnType> asyncInvoke(Class<?> returnClz, String serviceName, String methodName, Object[] args) {
+    <ReturnType> CompletableFuture<ReturnType> asyncInvoke(String serviceName, String methodName, Object[] args) {
         if (runtimeType == DousiRuntimeType.SERVER_RUNTIME) {
             // serverRuntime.asyncInvoke()
             return null;
         } else if (runtimeType == DousiRuntimeType.CLIENT_RUNTIME) {
-            return clientRuntime.asyncInvoke(returnClz, serviceName, methodName, args);
+            return clientRuntime.asyncInvoke(serviceName, methodName, args);
         }
         return null;
     }

@@ -10,7 +10,7 @@ public class DousiClientInNetty implements DousiClient {
 
     private DousiRuntime runtime = new DousiRuntime(DousiRuntimeType.CLIENT_RUNTIME);
 
-    public DousiClientInNetty(String addr) {
+    public DousiClientInNetty(String addr) throws InterruptedException {
 
     }
 
@@ -21,6 +21,6 @@ public class DousiClientInNetty implements DousiClient {
 
     @Override
     public <ServiceType, Arg1Type, ReturnType> CompletableFuture<ReturnType> asyncInvoke(DousiMethod2<ServiceType, Arg1Type, ReturnType> method, Object arg1) {
-        return runtime.asyncInvoke("service_class_name", "method_name", new Object[] {arg1});
+        return runtime.asyncInvoke("service_class_name", method.getName, new Object[] {arg1});
     }
 }

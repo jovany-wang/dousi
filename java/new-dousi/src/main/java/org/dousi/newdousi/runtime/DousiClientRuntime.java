@@ -9,9 +9,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import sun.reflect.generics.tree.ReturnType;
-
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.nio.ByteOrder;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -57,24 +57,28 @@ public class DousiClientRuntime {
         cf = bs.connect(ip, port).sync();
     }
 
-    public DousiService getService(String serviceName) {
-        return new DousiServiceImpl(this, serviceName);
-    }
+//    public DousiService getService(String serviceName) {
+//        return new DousiServiceImpl(this, serviceName);
+//    }
 
-    public CompletableFuture<ReturnType> asyncInvoke(String serviceName, String funcName, Object[] args) {
+    public <ReturnType extends Object> CompletableFuture<ReturnType> asyncInvoke(String serviceName, String funcName, Object[] args) {
+        final Class thisClazz = this.getClass();
+        Type genType = thisClazz.getGenericSuperclass();
+        Type[] params = ((ParameterizedType)genType).getActualTypeArguments();
+        Class returnTypeClass = (Class) params[0];
         try {
-            return submit(returnClz, serviceName, funcName, args);
+            return submit(returnTypeClass, serviceName, funcName, args);
         } catch (IOException | InterruptedException e) {
             return null;
         }
     }
 
-    CompletableFuture<Object> submit(Class<?> returnType, String serviceName, String methodName, Object[] args) throws IOException, InterruptedException {
+    private <ReturnType> CompletableFuture<ReturnType> submit(Class<?> returnType, String serviceName, String methodName, Object[] args) throws IOException, InterruptedException {
         final int objectId = ai.getAndIncrement();
         final byte[] encoded = new ClientCodec().encodeFunc(serviceName, methodName, args);
-        CompletableFuture<Object> returnedFuture = new CompletableFuture<>();
+        CompletableFuture<ReturnType> returnedFuture = new CompletableFuture<>();
         returnTypes.put(objectId, returnType);
-        returnFutures.put(objectId, returnedFuture);
+        returnFutures.put(objectId, (CompletableFuture<Object>) returnedFuture);
 
         ByteBuf byteBuf = cf.channel().alloc().heapBuffer();
         byteBuf.order(ByteOrder.LITTLE_ENDIAN);
