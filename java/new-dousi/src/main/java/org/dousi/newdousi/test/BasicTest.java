@@ -64,7 +64,12 @@ public class BasicTest {
     @BeforeClass
     private void startServerThread() throws InterruptedException {
         serverThread = new Thread(() -> {
-            DousiServer server = new DousiServerInNetty("127.0.0.1:10001");
+            DousiServer server = null;
+            try {
+                server = new DousiServerInNetty("127.0.0.1:10001");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             server.registerService(AdderService.class, new AdderServiceImpl());
             server.loop();
         });

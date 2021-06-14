@@ -7,7 +7,7 @@ public class DousiServerInNetty implements DousiServer {
 
     private DousiRuntime runtime = new DousiRuntime(DousiRuntimeType.SERVER_RUNTIME);
 
-    public DousiServerInNetty(String addr) {
+    public DousiServerInNetty(String addr) throws InterruptedException {
 
     }
 
