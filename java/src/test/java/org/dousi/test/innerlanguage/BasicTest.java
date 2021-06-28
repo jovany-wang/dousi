@@ -1,4 +1,4 @@
-package innerlanguage;
+package org.dousi.test.innerlanguage;
 
 
 import org.dousi.client.DousiRpcClient;
