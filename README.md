@@ -1,7 +1,7 @@
-# dousi
+# dousi-rpc
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/jovany-wang/dousi/CI)
 ![Github Star Number](https://badgen.net/github/stars/jovany-wang/dousi)  
-A Modern Multiple Languages RPC Framework.
+Highly Performance RPC Framework.
 
 
 Note that this is working on progress.
