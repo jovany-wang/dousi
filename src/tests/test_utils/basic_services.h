@@ -5,7 +5,7 @@
 
 #include <string>
 
-#include "../src/core/dousi.h"
+#include "../dousi/core/dousi.h"
 #include "core/executor/abstract_service.h"
 
 class Echoer : public dousi::AbstractService {
